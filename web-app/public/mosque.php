@@ -1,5 +1,6 @@
 <?php
-require_once __DIR__ . '/../bootstrap.php';
+$basePath = file_exists(__DIR__ . '/../bootstrap.php') ? dirname(__DIR__) : __DIR__;
+require_once $basePath . '/bootstrap.php';
 
 $mosqueId = $_GET['id'] ?? null;
 
@@ -22,7 +23,7 @@ if ($mosque) {
 $pageTitle = $mosque ? sanitize($mosque['name']) : "Mosque";
 
 ob_start();
-include __DIR__ . '/../app/views/mosque.php';
+include $basePath . '/app/views/mosque.php';
 $content = ob_get_clean();
 
-include __DIR__ . '/../app/views/layout.php';
+include $basePath . '/app/views/layout.php';

@@ -1,5 +1,6 @@
 <?php
-require_once __DIR__ . '/../../bootstrap.php';
+$basePath = file_exists(__DIR__ . '/../../bootstrap.php') ? dirname(dirname(__DIR__)) : dirname(__DIR__);
+require_once $basePath . '/bootstrap.php';
 
 header('Content-Type: application/json');
 

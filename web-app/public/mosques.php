@@ -1,5 +1,6 @@
 <?php
-require_once __DIR__ . '/../bootstrap.php';
+$basePath = file_exists(__DIR__ . '/../bootstrap.php') ? dirname(__DIR__) : __DIR__;
+require_once $basePath . '/bootstrap.php';
 
 $pageTitle = "All Mosques";
 
@@ -12,7 +13,7 @@ if (!empty($_GET['search'])) {
 }
 
 ob_start();
-include __DIR__ . '/../app/views/mosques.php';
+include $basePath . '/app/views/mosques.php';
 $content = ob_get_clean();
 
-include __DIR__ . '/../app/views/layout.php';
+include $basePath . '/app/views/layout.php';
