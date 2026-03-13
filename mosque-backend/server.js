@@ -39,5 +39,9 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Something went wrong! Please try again later.' });
 });
 
-// ✅ Do not use app.listen on CPanel
+// Start the server
+const PORT = process.env.PORT || 3001;
+app.listen(PORT, () => console.log(`✅ Server running on http://localhost:${PORT}`));
+
+// ✅ Export for CPanel/other deployments
 module.exports = app;
