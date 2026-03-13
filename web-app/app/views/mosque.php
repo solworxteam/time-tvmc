@@ -33,29 +33,29 @@
                             <div class="col-md-4 mb-3">
                                 <div class="p-4 bg-light rounded">
                                     <h5 class="text-muted">Onsite Parking</h5>
-                                    <h2 class="text-primary"><?php echo $parking ? htmlspecialchars($parking['spaces']) : 'N/A'; ?></h2>
+                                    <h2 class="text-primary"><?php echo $parking && !empty($parking['onsite_parking']) ? htmlspecialchars($parking['onsite_parking']) : '—'; ?></h2>
                                     <p class="text-muted mb-0">available spaces</p>
                                 </div>
                             </div>
                             <div class="col-md-4 mb-3">
                                 <div class="p-4 bg-light rounded">
-                                    <h5 class="text-muted">Disable Bays</h5>
-                                    <h2 class="text-primary"><?php echo $parking && $parking['has_accessible'] ? '✅' : '❌'; ?></h2>
-                                    <p class="text-muted mb-0"><?php echo $parking && $parking['has_accessible'] ? 'Available' : 'Not available'; ?></p>
+                                    <h5 class="text-muted">Disabled Bays</h5>
+                                    <h2 class="text-primary"><?php echo $parking && strtolower($parking['disable_bays']) === 'yes' ? '✅' : '❌'; ?></h2>
+                                    <p class="text-muted mb-0"><?php echo $parking && strtolower($parking['disable_bays']) === 'yes' ? 'Available' : 'Not available'; ?></p>
                                 </div>
                             </div>
                             <div class="col-md-4 mb-3">
                                 <div class="p-4 bg-light rounded">
-                                    <h5 class="text-muted">Cost</h5>
-                                    <h2 class="text-primary"><?php echo $parking && $parking['price'] ? '£' . htmlspecialchars($parking['price']) : 'Free'; ?></h2>
-                                    <p class="text-muted mb-0">per visit</p>
+                                    <h5 class="text-muted">Off Street Parking</h5>
+                                    <h2 class="text-primary"><?php echo $parking && strtolower($parking['off_street_parking']) === 'yes' ? '✅' : '❌'; ?></h2>
+                                    <p class="text-muted mb-0"><?php echo $parking && strtolower($parking['off_street_parking']) === 'yes' ? 'Available' : 'Not available'; ?></p>
                                 </div>
                             </div>
                         </div>
-                        <?php if ($parking && $parking['notes']): ?>
+                        <?php if ($parking && !empty($parking['road_name'])): ?>
                         <div class="mt-3 pt-3 border-top">
                             <p class="text-muted mb-0">
-                                <strong>Additional Info:</strong> <?php echo htmlspecialchars($parking['notes']); ?>
+                                <strong>Parking Location:</strong> <?php echo htmlspecialchars($parking['road_name']); ?>
                             </p>
                         </div>
                         <?php endif; ?>
@@ -90,9 +90,11 @@
                             </thead>
                             <tbody>
                                 <?php 
+                                $isFriday = date('N') == 5;
+                                $zuhrLabel = $isFriday ? 'Friday Prayer' : 'Zuhur';
                                 $prayers = [
                                     ['name' => 'Fajr', 'start' => 'fajar_start', 'jamaat' => 'fajar_jamaat'],
-                                    ['name' => 'Zuhr', 'start' => 'zuhr_start', 'jamaat' => 'zuhr_jamaat'],
+                                    ['name' => $zuhrLabel, 'start' => 'zuhr_start', 'jamaat' => 'zuhr_jamaat'],
                                     ['name' => 'Asr', 'start' => 'asr_start', 'jamaat' => 'asr_jamaat'],
                                     ['name' => 'Maghrib', 'start' => 'maghrib', 'jamaat' => null],
                                     ['name' => 'Isha', 'start' => 'isha_start', 'jamaat' => 'isha_jamaat'],
@@ -104,7 +106,7 @@
                                 // Find next prayer
                                 foreach ($prayers as $p) {
                                     $prayerTimeStr = date('H:i', strtotime($prayerTimes[$p['start']]));
-                                    $prayerTimestamp = strtotime($prayerTimeStr);
+                                    $prayerTimestamp = strtotime(date('Y-m-d') . ' ' . $prayerTimeStr);
                                     if ($prayerTimestamp > $currentTime) {
                                         $nextPrayerName = $p['name'];
                                         break;
@@ -118,10 +120,10 @@
                                 ?>
                                 <tr>
                                     <td><strong><?php echo $p['name']; ?></strong></td>
-                                    <td><?php echo formatTime($prayerTimes[$p['start']]); ?></td>
+                                    <td><span><?php echo formatTime($prayerTimes[$p['start']]); ?></span></td>
                                     <td>
                                         <?php if ($p['jamaat'] && isset($prayerTimes[$p['jamaat']])): ?>
-                                            <small class="text-muted"><?php echo formatTime($prayerTimes[$p['jamaat']]); ?></small>
+                                            <strong><?php echo formatTime($prayerTimes[$p['jamaat']]); ?></strong>
                                         <?php else: ?>
                                             <small class="text-muted">—</small>
                                         <?php endif; ?>
@@ -156,15 +158,9 @@
                 <h3 class="mb-4">📍 Mosque Details</h3>
                 <div class="card mb-3">
                     <div class="card-body">
-                        <p class="mb-2"><strong>City:</strong> <?php echo sanitize($mosque['city']); ?></p>
+                        <p class="mb-2"><strong>Name:</strong> <?php echo sanitize($mosque['name']); ?></p>
                         <p class="mb-2"><strong>Address:</strong> <?php echo sanitize($mosque['address']); ?></p>
-                        <p class="mb-2"><strong>Postcode:</strong> <?php echo sanitize($mosque['postcode']); ?></p>
-                        <?php if ($mosque['imam']): ?>
-                        <p class="mb-2"><strong>Imam:</strong> <?php echo sanitize($mosque['imam']); ?></p>
-                        <?php endif; ?>
-                        <?php if ($mosque['contact']): ?>
-                        <p class="mb-0"><strong>Contact:</strong> <?php echo sanitize($mosque['contact']); ?></p>
-                        <?php endif; ?>
+                        <p class="mb-0"><strong>Postcode:</strong> <?php echo sanitize($mosque['postcode']); ?></p>
                     </div>
                 </div>
             </div>
@@ -174,11 +170,12 @@
                     <div class="card-body">
                         <div class="p-4 bg-light rounded mb-3" style="height: 200px; display: flex; align-items: center; justify-content: center;">
                             <div class="text-center">
-                                <p class="text-muted mb-0">📍 <?php echo sanitize($mosque['city']); ?></p>
+                                <p class="text-muted mb-0">📍 <?php echo sanitize($mosque['address']); ?></p>
                                 <p class="text-muted mb-0"><?php echo sanitize($mosque['postcode']); ?></p>
                             </div>
                         </div>
-                        <p class="small text-muted mb-1">Coordinates: <?php echo htmlspecialchars($mosque['latitude']); ?>, <?php echo htmlspecialchars($mosque['longitude']); ?></p>
+                        <p class="small text-muted mb-1">Latitude: <?php echo htmlspecialchars($mosque['latitude'] ?? 0); ?></p>
+                        <p class="small text-muted mb-0">Longitude: <?php echo htmlspecialchars($mosque['longitude'] ?? 0); ?></p>
                     </div>
                 </div>
             </div>

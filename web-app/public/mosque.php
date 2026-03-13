@@ -1,8 +1,5 @@
 <?php
-require_once __DIR__ . '/../app/helpers.php';
-require_once __DIR__ . '/../app/models/Mosque.php';
-require_once __DIR__ . '/../app/models/PrayerTime.php';
-require_once __DIR__ . '/../app/models/Parking.php';
+require_once __DIR__ . '/../bootstrap.php';
 
 $mosqueId = $_GET['id'] ?? null;
 

@@ -1,13 +1,21 @@
 <?php
-require_once __DIR__ . '/../app/helpers.php';
-require_once __DIR__ . '/../app/models/Mosque.php';
-require_once __DIR__ . '/../app/models/PrayerTime.php';
+/**
+ * Home Page - Displays prayer times for all mosques
+ */
 
-$pageTitle = "Home";
-$todayPrayers = PrayerTime::getTodayPrayerTimes();
+require_once __DIR__ . '/../bootstrap.php';
 
-ob_start();
-include __DIR__ . '/../app/views/home.php';
-$content = ob_get_clean();
+try {
+    $pageTitle = "Home";
+    $todayPrayers = PrayerTime::getTodayPrayerTimes();
 
-include __DIR__ . '/../app/views/layout.php';
+    ob_start();
+    include __DIR__ . '/../app/views/home.php';
+    $content = ob_get_clean();
+
+    include __DIR__ . '/../app/views/layout.php';
+} catch (Exception $e) {
+    Logger::error("Error loading home page: " . $e->getMessage());
+    http_response_code(500);
+    die("<div class='container mt-5'><div class='alert alert-danger'>An error occurred while loading the page.</div></div>");
+}

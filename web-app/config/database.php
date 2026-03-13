@@ -1,61 +1,107 @@
 <?php
-// Database configuration
-function getDatabase() {
-    // Load .env if it exists
-    $env_file = __DIR__ . '/.env';
-    if (!file_exists($env_file)) {
-        $env_file = __DIR__ . '/../.env';
+/**
+ * Database Connection Manager - Singleton Pattern
+ * 
+ * This file maintains backward compatibility while using modern patterns.
+ */
+
+class Database {
+    private static $instance = null;
+    private $connection;
+
+    private function __construct() {
+        $this->connect();
     }
-    
-    if (file_exists($env_file)) {
-        $lines = file($env_file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-        foreach ($lines as $line) {
-            if (strpos($line, '=') !== false && $line[0] !== '#') {
-                list($key, $value) = explode('=', $line, 2);
-                putenv(trim($key) . '=' . trim($value));
-            }
+
+    public static function getInstance() {
+        if (self::$instance === null) {
+            self::$instance = new self();
         }
+        return self::$instance;
     }
-    
-    $db_host = getenv('DB_HOST') ?: '127.0.0.1';
-    $db_name = getenv('DB_NAME') ?: 'timetvmcorg_mosquesuk';
-    $db_user = getenv('DB_USER') ?: 'root';
-    $db_pass = getenv('DB_PASSWORD') ?: '';
-    
-    try {
-        $pdo = new PDO(
-            "mysql:host={$db_host};dbname={$db_name};charset=utf8mb4",
-            $db_user,
-            $db_pass,
-            [
+
+    private function connect() {
+        try {
+            $dsn = sprintf(
+                "mysql:host=%s;dbname=%s;charset=%s",
+                DB_HOST,
+                DB_NAME,
+                DB_CHARSET
+            );
+
+            $this->connection = new PDO($dsn, DB_USER, DB_PASS, [
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
                 PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-                PDO::ATTR_TIMEOUT => 5
-            ]
-        );
-        return $pdo;
-    } catch (PDOException $e) {
-        error_log("DB Error: " . $e->getMessage());
-        die("<div style='color:red;padding:20px;font-family:Arial;'>Database connection error: " . htmlspecialchars($e->getMessage()) . "</div>");
+                PDO::ATTR_TIMEOUT => 5,
+                PDO::ATTR_EMULATE_PREPARES => false,
+            ]);
+
+            Logger::info("Database connected successfully");
+        } catch (PDOException $e) {
+            Logger::error("Database connection failed: " . $e->getMessage());
+            throw new Exception("Unable to connect to database");
+        }
+    }
+
+    public function getConnection() {
+        return $this->connection;
+    }
+
+    public function execute($sql, $params = []) {
+        try {
+            $stmt = $this->connection->prepare($sql);
+            $stmt->execute($params);
+            return $stmt;
+        } catch (PDOException $e) {
+            Logger::error("Query execution failed: " . $e->getMessage());
+            throw new Exception("Database error occurred");
+        }
+    }
+
+    public function fetchAll($sql, $params = []) {
+        return $this->execute($sql, $params)->fetchAll();
+    }
+
+    public function fetch($sql, $params = []) {
+        return $this->execute($sql, $params)->fetch();
+    }
+
+    public function lastInsertId() {
+        return $this->connection->lastInsertId();
+    }
+
+    public function beginTransaction() {
+        $this->connection->beginTransaction();
+    }
+
+    public function commit() {
+        $this->connection->commit();
+    }
+
+    public function rollback() {
+        $this->connection->rollBack();
+    }
+
+    private function __clone() {}
+
+    public function __wakeup() {
+        throw new Exception('Cannot unserialize singleton');
     }
 }
 
-// Helper function to safely execute queries
+// Backward compatibility functions
+function getDatabase() {
+    return Database::getInstance()->getConnection();
+}
+
 function queryDb($sql, $params = []) {
-    $pdo = getDatabase();
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute($params);
-    return $stmt;
+    return Database::getInstance()->execute($sql, $params);
 }
 
-// Get all results
 function getAllDB($sql, $params = []) {
-    $stmt = queryDb($sql, $params);
-    return $stmt->fetchAll();
+    return Database::getInstance()->fetchAll($sql, $params);
 }
 
-// Get single result
 function getOneDB($sql, $params = []) {
-    $stmt = queryDb($sql, $params);
-    return $stmt->fetch();
+    return Database::getInstance()->fetch($sql, $params);
 }

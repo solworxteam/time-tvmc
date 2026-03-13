@@ -19,16 +19,21 @@
         <div class="row">
             <?php foreach ($mosques as $mosque): ?>
                 <div class="col-md-6 mb-4">
-                    <div class="card h-100">
+                    <div class="card h-100 shadow-sm">
                         <div class="card-body">
-                            <h5 class="card-title"><?php echo sanitize($mosque['name']); ?></h5>
+                            <h5 class="card-title text-primary"><?php echo sanitize($mosque['name']); ?></h5>
                             <p class="card-text">
-                                <strong>City:</strong> <?php echo sanitize($mosque['city']); ?><br>
-                                <strong>Address:</strong> <?php echo sanitize($mosque['address']); ?><br>
-                                <strong>Imam:</strong> <?php echo sanitize($mosque['imam']); ?><br>
-                                <strong>Contact:</strong> <?php echo sanitize($mosque['contact']); ?>
+                                <strong>📍 Address:</strong> <?php echo sanitize($mosque['address']); ?><br>
+                                <strong>📬 Postcode:</strong> <?php echo sanitize($mosque['postcode']); ?>
                             </p>
-                            <a href="/mosque.php?id=<?php echo $mosque['id']; ?>" class="btn btn-primary">View Prayer Times</a>
+                            <div class="mt-3">
+                                <a href="/mosque.php?id=<?php echo urlencode($mosque['id']); ?>" class="btn btn-sm btn-primary">
+                                    🕌 View Prayer Times
+                                </a>
+                                <a href="https://maps.google.com/maps?daddr=<?php echo urlencode($mosque['address'] . ' ' . $mosque['postcode']); ?>" target="_blank" class="btn btn-sm btn-outline-secondary">
+                                    🗺️ Directions
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>

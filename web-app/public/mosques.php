@@ -1,6 +1,5 @@
 <?php
-require_once __DIR__ . '/../app/helpers.php';
-require_once __DIR__ . '/../app/models/Mosque.php';
+require_once __DIR__ . '/../bootstrap.php';
 
 $pageTitle = "All Mosques";
 

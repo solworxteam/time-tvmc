@@ -19,7 +19,6 @@
                 <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
                 <li class="nav-item"><a class="nav-link" href="/mosques.php">Mosques</a></li>
                 <li class="nav-item"><a class="nav-link" href="/nearest.php">Find Nearest</a></li>
-                <li class="nav-item"><a class="nav-link" href="/admin/login.php">Admin</a></li>
             </ul>
         </div>
     </div>
@@ -33,7 +32,7 @@
 
 <footer class="bg-dark text-white py-4 mt-5">
     <div class="container text-center">
-        <p>&copy; 2025 UK Prayer Times. All rights reserved.</p>
+        <p>&copy; <?php echo date('Y'); ?> UK Prayer Times. All rights reserved.</p>
     </div>
 </footer>
 
