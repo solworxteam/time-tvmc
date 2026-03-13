@@ -71,13 +71,24 @@ CREATE DATABASE timetvmcorg_mosquesuk;
 
 ### 2. Configuration
 
-Edit `config/database.php` to set your database credentials:
-```php
-$db_host = 'localhost';
-$db_name = 'timetvmcorg_mosquesuk';
-$db_user = 'root';
-$db_pass = '';
+Copy `.env.example` to `.env` and set your database credentials:
+```bash
+cp .env.example .env
 ```
+
+Then update `.env` values:
+```env
+DB_HOST=127.0.0.1
+DB_NAME=timetvmcorg_mosquesuk
+DB_USER=root
+DB_PASSWORD=
+APP_ENV=production
+APP_DEBUG=false
+```
+
+Notes:
+- `.env` is git-ignored and should not be committed.
+- This means push/pull does not require changing tracked config files.
 
 ### 3. Apache Setup
 
@@ -87,11 +98,9 @@ Make sure `.htaccess` is enabled and `mod_rewrite` is active.
 
 Ensure the web server can read all PHP files.
 
-### 5. Admin Login
+### 5. Admin
 
-Use credentials from the `admin_users` table:
-- Username: `admin`
-- Password: `hammad` (or `Time.TVMC/Admin.TVMC.uk`)
+The admin panel has been removed. Timetable updates are expected via import/cron workflow.
 
 ## Running Locally
 
@@ -107,7 +116,7 @@ Then visit: `http://localhost:8000/`
 
 1. Upload the entire `web-app` folder to your shared hosting
 2. Point your domain to the `web-app/public` directory
-3. Update database credentials in `config/database.php`
+3. Create `.env` on the server from `.env.example` and set production credentials
 4. Ensure PHP 7.4+ is installed
 5. Enable `.htaccess` and `mod_rewrite`
 
@@ -132,16 +141,15 @@ Times must be in 24-hour format (HH:MM).
 
 **Database Connection Errors:**
 - Verify MySQL is running
-- Check credentials in `config/database.php`
+- Check credentials in `.env`
 - Ensure the database and tables exist
 
-**Admin Login Issues:**
-- Check that `admin_users` table exists and has records
-- Verify session support is enabled in PHP
+**Admin Access:**
+- Admin endpoints were removed; this is expected.
 
 ## Notes
 
 - Prayer times are displayed for the current date
 - Geolocation uses the Haversine formula to calculate distances
 - All input is sanitized to prevent SQL injection and XSS
-- Admin panel requires session-based authentication
+- Configuration is environment-based via `.env`

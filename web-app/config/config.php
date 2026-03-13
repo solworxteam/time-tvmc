@@ -25,11 +25,11 @@ if (file_exists($env_file)) {
 define('DB_HOST', getenv('DB_HOST') ?: '127.0.0.1');
 define('DB_NAME', getenv('DB_NAME') ?: 'timetvmcorg_mosquesuk');
 define('DB_USER', getenv('DB_USER') ?: 'root');
-define('DB_PASS', getenv('DB_PASSWORD') ?: '');
+define('DB_PASS', getenv('DB_PASSWORD') ?: (getenv('DB_PASS') ?: ''));
 define('DB_CHARSET', 'utf8mb4');
 
 // Application Settings
-define('APP_DEBUG', getenv('APP_DEBUG') ?: false);
+define('APP_DEBUG', filter_var(getenv('APP_DEBUG'), FILTER_VALIDATE_BOOLEAN));
 define('APP_ENV', getenv('APP_ENV') ?: 'production');
 define('SESSION_LIFETIME', 3600); // 1 hour
 

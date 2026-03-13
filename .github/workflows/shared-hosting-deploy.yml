@@ -1,0 +1,46 @@
+name: Deploy to Shared Hosting
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "web-app/**"
+      - ".github/workflows/shared-hosting-deploy.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: shared-hosting-deploy-main
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: FTP Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Deploy web-app via FTP/FTPS
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftps
+          port: 21
+          local-dir: ./web-app/
+          server-dir: ${{ secrets.FTP_SERVER_DIR }}
+          dangerous-clean-slate: false
+          exclude: |
+            **/.git*
+            **/.github/**
+            **/.env
+            **/.env.*
+            **/node_modules/**
+            **/vendor/**
+            **/storage/logs/**
+            **/tmp/**
+            **/.DS_Store
+            **/Thumbs.db
