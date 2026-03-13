@@ -9,6 +9,7 @@
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: #f8f9fa;
+    font-size: 16px;
 }
 
 .navbar {
@@ -34,6 +35,15 @@ main {
 .card:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.btn {
+    min-height: 42px;
+}
+
+.table td,
+.table th {
+    vertical-align: middle;
 }
 
 .btn-primary {
@@ -78,6 +88,52 @@ footer {
 
     .card {
         margin-bottom: 1rem;
+    }
+
+    main {
+        padding-bottom: 1rem;
+    }
+
+    h1 {
+        font-size: 1.6rem;
+    }
+
+    h2 {
+        font-size: 1.35rem;
+    }
+
+    .table-responsive {
+        border-radius: 0.5rem;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    #prayer-table {
+        min-width: 900px;
+        font-size: 0.92rem;
+    }
+
+    .prayer-times-table {
+        min-width: 720px;
+        font-size: 0.92rem;
+    }
+
+    .directions-btn {
+        min-width: 44px;
+        min-height: 44px;
+        font-size: 0.95rem;
+    }
+
+    .mosque-hero {
+        padding: 24px 14px !important;
+        margin-bottom: 20px !important;
+    }
+
+    .mosque-title {
+        font-size: 1.8rem !important;
+    }
+
+    .location-help-card {
+        margin-top: 1rem;
     }
 }
 

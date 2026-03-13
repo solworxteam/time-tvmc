@@ -18,6 +18,9 @@
         $isFriday = date('N') == 5;
         $zuhrLabel = $isFriday ? 'Friday Prayer' : 'Zuhur';
         ?>
+        <div id="location-status" class="mb-3"></div>
+
+        <div class="d-none d-md-block">
         <div class="table-responsive">
             <table class="table table-hover table-striped align-middle" id="prayer-table">
                 <thead class="table-dark sticky-top">
@@ -129,6 +132,84 @@
                 </tbody>
             </table>
         </div>
+        </div><!-- /.d-none.d-md-block -->
+
+        <!-- Mobile card view (phones / small tablets) -->
+        <div class="d-md-none" id="mosque-cards">
+            <?php foreach ($allMosques as $mosque):
+                $cardMosqueId = $mosque['id'];
+                $prayersCard  = isset($prayersByMosque[$cardMosqueId]) ? $prayersByMosque[$cardMosqueId][0] : null;
+                if (!$prayersCard) continue;
+
+                $cardPrayerTimes = [
+                    ['name' => 'Fajr',        'time' => $prayersCard['fajar_start']],
+                    ['name' => $zuhrLabel,    'time' => $prayersCard['zuhr_start']],
+                    ['name' => 'Asr',         'time' => $prayersCard['asr_start']],
+                    ['name' => 'Maghrib',     'time' => $prayersCard['maghrib']],
+                    ['name' => 'Isha',        'time' => $prayersCard['isha_start']],
+                ];
+                $nextPrayerCard = null;
+                foreach ($cardPrayerTimes as $cp) {
+                    $cpTs = strtotime(date('Y-m-d') . ' ' . date('H:i', strtotime($cp['time'])));
+                    if ($cpTs > $currentTime) { $nextPrayerCard = $cp['name']; break; }
+                }
+                if (!$nextPrayerCard) $nextPrayerCard = 'Fajr (Tomorrow)';
+            ?>
+            <div class="card mb-3 prayer-row"
+                 data-mosque-id="<?php echo htmlspecialchars($mosque['id']); ?>"
+                 data-lat="<?php echo htmlspecialchars($mosque['latitude'] ?? 0); ?>"
+                 data-lon="<?php echo htmlspecialchars($mosque['longitude'] ?? 0); ?>"
+                 data-address="<?php echo htmlspecialchars($mosque['address'] ?? ''); ?>"
+                 data-postcode="<?php echo htmlspecialchars($mosque['postcode'] ?? ''); ?>">
+                <div class="card-body p-3">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div>
+                            <h6 class="mb-0">
+                                <a href="/mosque.php?id=<?php echo urlencode($mosque['id']); ?>"
+                                   class="text-decoration-none fw-bold text-dark">
+                                    <?php echo sanitize($mosque['name']); ?>
+                                </a>
+                            </h6>
+                            <small class="text-muted"><?php echo sanitize($mosque['postcode']); ?></small>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="badge bg-success mosque-next-badge"><?php echo $nextPrayerCard; ?></span>
+                            <button class="btn btn-sm btn-info directions-btn" type="button"
+                                    data-lat="<?php echo htmlspecialchars($mosque['latitude'] ?? 0); ?>"
+                                    data-lon="<?php echo htmlspecialchars($mosque['longitude'] ?? 0); ?>"
+                                    title="Get Directions">&#128205;</button>
+                        </div>
+                    </div>
+                    <div class="row row-cols-3 g-2 text-center small">
+                        <div class="col">
+                            <div class="text-muted prayer-col-label">Fajr</div>
+                            <div><?php echo formatTime($prayersCard['fajar_start']); ?></div>
+                            <strong><?php echo formatTime($prayersCard['fajar_jamaat']); ?></strong>
+                        </div>
+                        <div class="col">
+                            <div class="text-muted prayer-col-label"><?php echo $zuhrLabel; ?></div>
+                            <div><?php echo formatTime($prayersCard['zuhr_start']); ?></div>
+                            <strong><?php echo formatTime($prayersCard['zuhr_jamaat']); ?></strong>
+                        </div>
+                        <div class="col">
+                            <div class="text-muted prayer-col-label">Asr</div>
+                            <div><?php echo formatTime($prayersCard['asr_start']); ?></div>
+                            <strong><?php echo formatTime($prayersCard['asr_jamaat']); ?></strong>
+                        </div>
+                        <div class="col">
+                            <div class="text-muted prayer-col-label">Maghrib</div>
+                            <div><?php echo formatTime($prayersCard['maghrib']); ?></div>
+                        </div>
+                        <div class="col">
+                            <div class="text-muted prayer-col-label">Isha</div>
+                            <div><?php echo formatTime($prayersCard['isha_start']); ?></div>
+                            <strong><?php echo formatTime($prayersCard['isha_jamaat']); ?></strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <?php endforeach; ?>
+        </div><!-- /.d-md-none -->
 
         <style>
             .table-hover tbody tr:hover {
@@ -136,7 +217,13 @@
             }
             .badge {
                 font-size: 0.85rem;
-                min-width: 120px;
+            }
+            .mosque-next-badge {
+                white-space: nowrap;
+                font-size: 0.75rem;
+            }
+            .prayer-col-label {
+                font-size: 0.7rem;
             }
             .sticky-top {
                 top: 0;
@@ -185,12 +272,17 @@
                     });
                     
                     if (nearestRow) {
-                        nearestRow.classList.add('nearest');
-                        const mosqueNameCell = nearestRow.querySelector('td a').textContent;
+                        const nearestId  = nearestRow.dataset.mosqueId;
                         const distanceKm = (minDistance).toFixed(2);
-                        document.getElementById('location-status').innerHTML = 
+                        // Highlight both table row + mobile card for the same mosque
+                        document.querySelectorAll(`.prayer-row[data-mosque-id="${nearestId}"]`).forEach(el => {
+                            el.classList.add('nearest');
+                        });
+                        const nameEl = nearestRow.querySelector('a');
+                        const mosqueNameCell = nameEl ? nameEl.textContent.trim() : 'Nearest Mosque';
+                        document.getElementById('location-status').innerHTML =
                             `<div class="alert alert-success" role="alert">
-                                📍 <strong>Nearest Mosque:</strong> ${mosqueNameCell} (${distanceKm} km away) - Highlighted in yellow
+                                &#128205; <strong>Nearest Mosque:</strong> ${mosqueNameCell} (${distanceKm} km away) – Highlighted in yellow
                             </div>`;
                     }
                 }, function(error) {

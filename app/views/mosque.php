@@ -1,10 +1,10 @@
 
-<div class="container-fluid" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 40px 20px; margin-bottom: 40px; border-radius: 0;">
+<div class="container-fluid mosque-hero" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 40px 20px; margin-bottom: 40px; border-radius: 0;">
     <?php if (!$mosque): ?>
         <div class="alert alert-danger">Mosque not found.</div>
     <?php else: ?>
         <div class="text-center">
-            <h1 class="display-4 mb-2"><?php echo sanitize($mosque['name']); ?></h1>
+            <h1 class="display-4 mosque-title mb-2"><?php echo sanitize($mosque['name']); ?></h1>
             <p class="lead mb-2">
                 <strong>Current Time: </strong><?php echo date('g:i a'); ?>
             </p>
@@ -78,7 +78,7 @@
                     </div>
                 <?php else: ?>
                     <div class="table-responsive">
-                        <table class="table table-hover align-middle">
+                        <table class="table table-hover align-middle prayer-times-table">
                             <thead class="table-dark">
                                 <tr>
                                     <th style="width: 20%;">Prayer</th>

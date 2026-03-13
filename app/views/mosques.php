@@ -26,11 +26,11 @@
                                 <strong>📍 Address:</strong> <?php echo sanitize($mosque['address']); ?><br>
                                 <strong>📬 Postcode:</strong> <?php echo sanitize($mosque['postcode']); ?>
                             </p>
-                            <div class="mt-3">
-                                <a href="/mosque.php?id=<?php echo urlencode($mosque['id']); ?>" class="btn btn-sm btn-primary">
+                            <div class="mt-3 d-grid gap-2 d-sm-flex">
+                                <a href="/mosque.php?id=<?php echo urlencode($mosque['id']); ?>" class="btn btn-primary">
                                     🕌 View Prayer Times
                                 </a>
-                                <a href="https://maps.google.com/maps?daddr=<?php echo urlencode($mosque['address'] . ' ' . $mosque['postcode']); ?>" target="_blank" class="btn btn-sm btn-outline-secondary">
+                                <a href="https://maps.google.com/maps?daddr=<?php echo urlencode($mosque['address'] . ' ' . $mosque['postcode']); ?>" target="_blank" class="btn btn-outline-secondary">
                                     🗺️ Directions
                                 </a>
                             </div>

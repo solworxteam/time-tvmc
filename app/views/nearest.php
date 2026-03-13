@@ -7,7 +7,7 @@
             <div class="card mb-4">
                 <div class="card-body">
                     <p class="lead">Click the button below to share your location and find the nearest mosque.</p>
-                    <button id="locateBtn" class="btn btn-lg btn-success">📍 Use My Location</button>
+                    <button id="locateBtn" class="btn btn-lg btn-success w-100 w-sm-auto">📍 Use My Location</button>
                     <div id="status" class="mt-3"></div>
                 </div>
             </div>
@@ -19,7 +19,7 @@
         </div>
 
         <div class="col-md-4">
-            <div class="card">
+            <div class="card location-help-card">
                 <div class="card-body">
                     <h5 class="card-title">How It Works</h5>
                     <ol>
