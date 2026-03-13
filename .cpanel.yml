@@ -1,12 +1,6 @@
 ---
 deployment:
   tasks:
-    - export DEPLOYPATH=$HOME/public_html/
-    - /bin/mkdir -p $DEPLOYPATH
-    - /bin/mkdir -p $DEPLOYPATH/app $DEPLOYPATH/config $DEPLOYPATH/storage
-    - /bin/cp -R web-app/app/. $DEPLOYPATH/app/
-    - /bin/cp -R web-app/config/. $DEPLOYPATH/config/
-    - /bin/cp -R web-app/storage/. $DEPLOYPATH/storage/
-    - /bin/cp web-app/bootstrap.php $DEPLOYPATH/bootstrap.php
-    - /bin/cp -R web-app/public/. $DEPLOYPATH
-    - /bin/echo "Deployment completed to $DEPLOYPATH"
+    - /bin/echo "cpanel deploy test start"
+    - /bin/date
+    - /bin/echo "cpanel deploy test end"
