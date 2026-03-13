@@ -1,214 +1,95 @@
-# TVMC Mosques API
+# TVMC Prayer Times (PHP)
 
-A Node.js/Express REST API for managing mosque information, prayer times, and parking availability across UK Islamic centers.
+Lightweight PHP application for mosque prayer times, mosque listings, and nearest-mosque lookup.
+
+## Current Structure
+
+```text
+nodeapps/
+    app/
+        models/
+        views/
+        helpers.php
+        Logger.php
+    config/
+        config.php
+        database.php
+    public/
+        index.php
+        mosques.php
+        mosque.php
+        nearest.php
+        api/mosques-with-distance.php
+        css/
+        js/
+        .htaccess
+    storage/logs/
+    bootstrap.php
+    .cpanel.yml
+    .env.example
+```
 
 ## Features
 
-- **Mosque Management** - Store and retrieve mosque details
-- **Prayer Times** - Display and manage daily prayer times for each mosque
-- **Parking Information** - Track available parking (on-site bays, disabled spaces, street parking)
-- **Admin Authentication** - Secure login for admins to manage data
-- **Database** - MySQL with connection pooling for reliability
+- Public home page with daily prayer overview
+- Mosques list and individual mosque details
+- Nearest mosque lookup (distance API)
+- Environment-based configuration (`.env`)
+- cPanel Git deployment via `.cpanel.yml`
 
-## Tech Stack
+Admin endpoints are removed by design.
 
-- **Runtime:** Node.js 18+
-- **Framework:** Express.js 5.x
-- **Database:** MySQL (MariaDB compatible)
-- **Authentication:** JWT (JSON Web Tokens)
-- **Middleware:** CORS, Body Parser
+## Local Setup
 
-## Installation
+1. Create environment file:
 
-### Prerequisites
-- Node.js 18+ installed
-- MySQL database (remote or local)
-- npm or yarn
-
-### Setup
-
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/yourusername/time-tvmc.git
-   cd time-tvmc
-   ```
-
-2. **Install dependencies:**
-   ```bash
-   npm install
-   ```
-
-3. **Configure environment variables:**
-   ```bash
-   cp .env.example .env
-   ```
-   Then edit `.env` with your database credentials:
-   ```
-   DB_HOST=your_db_host
-   DB_USER=your_db_user
-   DB_PASSWORD=your_db_password
-   DB_NAME=timetvmcorg_mosquesuk
-   PORT=3001
-   ```
-
-4. **Import database schema:**
-   ```bash
-   mysql -h DB_HOST -u DB_USER -p DB_NAME < timetvmcorg_mosquesuk.sql
-   ```
-
-5. **Start the server:**
-   ```bash
-   npm start
-   ```
-
-Server runs on `http://localhost:3001`
-
-## API Routes
-
-### Mosques
-- `GET /api/mosques` - Get all mosques
-- `PUT /api/mosques/:id` - Update mosque info
-
-### Prayer Times
-- `GET /api/prayertimes/:date` - Get prayer times for a specific date
-- `POST /api/prayertimes/upload` - Upload prayer times (admin)
-- `GET /api/prayertimes/mosque/:mosque_id` - Get mosque prayer times
-
-### Parking
-- `GET /api/parking/:mosque_id` - Get parking info for a mosque
-- `PUT /api/parking/:mosque_id` - Update parking info
-
-### Authentication
-- `POST /api/login` - Admin login
-
-## Admin Credentials
-
-Default admin users (from database):
-- Username: `Time.TVMC` / Password: `Admin.TVMC.uk`
-- Username: `admin` / Password: `hammad`
-
-**Note:** Change these in production!
-
-## Project Structure
-
-```
-├── mosque-backend/          # Primary backend code
-│   ├── db.js               # MySQL connection pool
-│   ├── server.js           # Express server setup
-│   ├── package.json        # Dependencies
-│   └── routes/
-│       ├── mosques.js      # Mosque endpoints
-│       ├── prayerTimes.js  # Prayer times endpoints
-│       ├── parking.js      # Parking endpoints
-│       ├── auth.js         # Authentication endpoints
-│       └── prayerTimesAdmin.js
-├── timetvmcorg_mosquesuk.sql  # Database schema
-├── .env                    # Environment variables (not in git)
-├── .env.example           # Example environment file
-└── README.md              # This file
-```
-
-## Deployment
-
-### Using PM2 (Recommended)
-
-1. **Install PM2 globally:**
-   ```bash
-   npm install -g pm2
-   ```
-
-2. **Start the application:**
-   ```bash
-   pm2 start mosque-backend/server.js --name "tvmc-api"
-   ```
-
-3. **Save PM2 process list (auto-restart on reboot):**
-   ```bash
-   pm2 save
-   pm2 startup
-   ```
-
-4. **Monitor:**
-   ```bash
-   pm2 logs tvmc-api
-   pm2 status
-   ```
-
-### Using Systemd Service
-
-Create `/etc/systemd/system/tvmc-api.service`:
-```ini
-[Unit]
-Description=TVMC Mosques API
-After=network.target
-
-[Service]
-Type=simple
-User=nodeuser
-WorkingDirectory=/path/to/time-tvmc
-ExecStart=/usr/bin/node mosque-backend/server.js
-Restart=always
-RestartSec=10
-
-[Install]
-WantedBy=multi-user.target
-```
-
-Then enable and start:
 ```bash
-sudo systemctl enable tvmc-api
-sudo systemctl start tvmc-api
+copy .env.example .env
 ```
 
-## Environment Variables
+2. Update `.env` values:
 
-Create a `.env` file with:
-```
-DB_HOST=your_database_host
-DB_USER=your_database_user
-DB_PASSWORD=your_database_password
+```env
+DB_HOST=127.0.0.1
 DB_NAME=timetvmcorg_mosquesuk
-PORT=3001
-NODE_ENV=production
+DB_USER=root
+DB_PASSWORD=
+APP_ENV=production
+APP_DEBUG=false
 ```
+
+3. Run locally:
+
+```bash
+php -S localhost:8000 -t public
+```
+
+4. Open:
+
+- `http://localhost:8000/`
+- `http://localhost:8000/mosques.php`
+- `http://localhost:8000/nearest.php`
+
+## Shared Hosting (cPanel Git)
+
+- Deployment target is `public_html` root.
+- `.cpanel.yml` copies `app`, `config`, `storage`, `bootstrap.php`, and `public` contents into `public_html`.
+
+Deployment flow:
+
+1. Push to `main`
+2. In cPanel Git Version Control, pull latest
+3. Deploy HEAD commit
 
 ## Database
 
-The SQL schema includes tables for:
-- `mosques` - Mosque information and locations
-- `prayertimes` - Prayer times by date and mosque
-- `parking` - Parking details per mosque
-- `admins` / `admin_users` - Admin credentials
+Import the provided SQL dump if needed:
 
-## Troubleshooting
-
-**Connection timeout errors:**
-- Verify database host is reachable: `ping your_db_host`
-- Check database credentials in `.env`
-- Ensure firewall allows MySQL connections (port 3306)
-
-**"Can't add new command when connection is in closed state":**
-- This was a bug in the root `db.js` - use `mosque-backend/db.js` instead
-- It uses connection pooling which is more reliable
-
-**Port already in use:**
 ```bash
-# Change PORT in .env, or kill the process:
-lsof -i :3001
-kill -9 <PID>
+mysql -h 127.0.0.1 -u <user> -p timetvmcorg_mosquesuk < timetvmcorg_mosquesuk.sql
 ```
 
-## Contributing
+## Notes
 
-1. Create a feature branch: `git checkout -b feature/your-feature`
-2. Commit changes: `git commit -am 'Add new feature'`
-3. Push to branch: `git push origin feature/your-feature`
-4. Create a Pull Request
-
-## License
-
-ISC
-
-## Support
-
-For issues or questions, contact the development team.
+- `.env` is git-ignored and must not be committed.
+- If deploy queue hangs in cPanel, run a minimal `.cpanel.yml` smoke test first, then restore full tasks.
