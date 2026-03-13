@@ -1,81 +1,237 @@
 
-<div class="container mt-5">
+<div class="container-fluid" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 40px 20px; margin-bottom: 40px; border-radius: 0;">
     <?php if (!$mosque): ?>
         <div class="alert alert-danger">Mosque not found.</div>
     <?php else: ?>
+        <div class="text-center">
+            <h1 class="display-4 mb-2"><?php echo sanitize($mosque['name']); ?></h1>
+            <p class="lead mb-2">
+                <strong>Current Time: </strong><?php echo date('g:i a'); ?>
+            </p>
+            <p class="lead">
+                <?php echo sanitize($mosque['address']); ?> <?php echo sanitize($mosque['postcode']); ?>
+            </p>
+        </div>
+    <?php endif; ?>
+</div>
+
+<div class="container mt-4">
+    <?php if (!$mosque): ?>
         <div class="row">
-            <div class="col-md-8">
-                <h1><?php echo sanitize($mosque['name']); ?></h1>
-                
-                <div class="card mb-4">
-                    <div class="card-body">
-                        <h5 class="card-title">Information</h5>
-                        <p><strong>City:</strong> <?php echo sanitize($mosque['city']); ?></p>
-                        <p><strong>Address:</strong> <?php echo sanitize($mosque['address']); ?></p>
-                        <p><strong>Imam:</strong> <?php echo sanitize($mosque['imam']); ?></p>
-                        <p><strong>Contact:</strong> <?php echo sanitize($mosque['contact']); ?></p>
-                        <p><strong>Coordinates:</strong> <?php echo sanitize($mosque['latitude']); ?>, <?php echo sanitize($mosque['longitude']); ?></p>
-                    </div>
-                </div>
-
-                <div class="card mb-4">
-                    <div class="card-body">
-                        <h5 class="card-title">Prayer Times - <?php echo formatDate(date('Y-m-d')); ?></h5>
-                        
-                        <?php if (!$prayerTimes): ?>
-                            <p class="text-muted">No prayer times available for today.</p>
-                        <?php else: ?>
-                            <table class="table">
-                                <tr>
-                                    <td><strong>Fajr (Dawn):</strong></td>
-                                    <td><?php echo formatTime($prayerTimes['fajr']); ?></td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Zuhr (Midday):</strong></td>
-                                    <td><?php echo formatTime($prayerTimes['zuhr']); ?></td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Asr (Afternoon):</strong></td>
-                                    <td><?php echo formatTime($prayerTimes['asr']); ?></td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Maghrib (Sunset):</strong></td>
-                                    <td><?php echo formatTime($prayerTimes['maghrib']); ?></td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Isha (Night):</strong></td>
-                                    <td><?php echo formatTime($prayerTimes['isha']); ?></td>
-                                </tr>
-                            </table>
-                        <?php endif; ?>
-                    </div>
-                </div>
-
-                <?php if ($parking): ?>
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">Parking</h5>
-                            <p><strong>Spaces:</strong> <?php echo $parking['spaces']; ?></p>
-                            <p><strong>Accessible Parking:</strong> <?php echo $parking['has_accessible'] ? 'Yes' : 'No'; ?></p>
-                            <p><strong>Cost:</strong> <?php echo $parking['price'] ? '£' . $parking['price'] : 'Free'; ?></p>
-                            <p><strong>Notes:</strong> <?php echo sanitize($parking['notes']); ?></p>
-                        </div>
-                    </div>
-                <?php endif; ?>
+            <div class="col-12">
+                <a href="/index.php" class="btn btn-secondary">← Back to All Mosques</a>
             </div>
-
-            <div class="col-md-4">
-                <div class="card mb-4">
+        </div>
+    <?php else: ?>
+        <!-- Parking Information Section -->
+        <div class="row mb-5">
+            <div class="col-12">
+                <h2 class="text-center mb-4">🅿️ Parking Information</h2>
+                <div class="card border-primary shadow-sm">
                     <div class="card-body">
-                        <h5 class="card-title">Location</h5>
-                        <div id="map" style="height: 300px; background: #e9ecef; display: flex; align-items: center; justify-content: center; border-radius: 0.25rem;">
-                            <p class="text-muted">📍 <?php echo sanitize($mosque['city']); ?></p>
+                        <div class="row text-center">
+                            <div class="col-md-4 mb-3">
+                                <div class="p-4 bg-light rounded">
+                                    <h5 class="text-muted">Onsite Parking</h5>
+                                    <h2 class="text-primary"><?php echo $parking ? htmlspecialchars($parking['spaces']) : 'N/A'; ?></h2>
+                                    <p class="text-muted mb-0">available spaces</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="p-4 bg-light rounded">
+                                    <h5 class="text-muted">Disable Bays</h5>
+                                    <h2 class="text-primary"><?php echo $parking && $parking['has_accessible'] ? '✅' : '❌'; ?></h2>
+                                    <p class="text-muted mb-0"><?php echo $parking && $parking['has_accessible'] ? 'Available' : 'Not available'; ?></p>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="p-4 bg-light rounded">
+                                    <h5 class="text-muted">Cost</h5>
+                                    <h2 class="text-primary"><?php echo $parking && $parking['price'] ? '£' . htmlspecialchars($parking['price']) : 'Free'; ?></h2>
+                                    <p class="text-muted mb-0">per visit</p>
+                                </div>
+                            </div>
                         </div>
-                        <p class="small text-muted mt-2">Latitude: <?php echo sanitize($mosque['latitude']); ?></p>
-                        <p class="small text-muted">Longitude: <?php echo sanitize($mosque['longitude']); ?></p>
+                        <?php if ($parking && $parking['notes']): ?>
+                        <div class="mt-3 pt-3 border-top">
+                            <p class="text-muted mb-0">
+                                <strong>Additional Info:</strong> <?php echo htmlspecialchars($parking['notes']); ?>
+                            </p>
+                        </div>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
         </div>
+
+        <!-- Prayer Times Section -->
+        <div class="row mb-5">
+            <div class="col-12">
+                <h2 class="text-center mb-4">🕌 Prayer Times</h2>
+                <p class="text-center text-muted mb-4">
+                    <strong><?php echo date('l, d F Y'); ?></strong>
+                </p>
+
+                <?php if (!$prayerTimes): ?>
+                    <div class="alert alert-info">
+                        No prayer times available for today. <a href="/index.php" class="alert-link">View all mosques</a>
+                    </div>
+                <?php else: ?>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th style="width: 20%;">Prayer</th>
+                                    <th style="width: 20%;">Start Time</th>
+                                    <th style="width: 20%;">Congregation Time</th>
+                                    <th style="width: 20%; text-align: center;">Status</th>
+                                    <th style="width: 20%; text-align: center;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php 
+                                $prayers = [
+                                    ['name' => 'Fajr', 'start' => 'fajar_start', 'jamaat' => 'fajar_jamaat'],
+                                    ['name' => 'Zuhr', 'start' => 'zuhr_start', 'jamaat' => 'zuhr_jamaat'],
+                                    ['name' => 'Asr', 'start' => 'asr_start', 'jamaat' => 'asr_jamaat'],
+                                    ['name' => 'Maghrib', 'start' => 'maghrib', 'jamaat' => null],
+                                    ['name' => 'Isha', 'start' => 'isha_start', 'jamaat' => 'isha_jamaat'],
+                                ];
+                                
+                                $currentTime = time();
+                                $nextPrayerName = null;
+                                
+                                // Find next prayer
+                                foreach ($prayers as $p) {
+                                    $prayerTimeStr = date('H:i', strtotime($prayerTimes[$p['start']]));
+                                    $prayerTimestamp = strtotime($prayerTimeStr);
+                                    if ($prayerTimestamp > $currentTime) {
+                                        $nextPrayerName = $p['name'];
+                                        break;
+                                    }
+                                }
+                                if (!$nextPrayerName) {
+                                    $nextPrayerName = 'Fajr (Tomorrow)';
+                                }
+                                
+                                foreach ($prayers as $p):
+                                ?>
+                                <tr>
+                                    <td><strong><?php echo $p['name']; ?></strong></td>
+                                    <td><?php echo formatTime($prayerTimes[$p['start']]); ?></td>
+                                    <td>
+                                        <?php if ($p['jamaat'] && isset($prayerTimes[$p['jamaat']])): ?>
+                                            <small class="text-muted"><?php echo formatTime($prayerTimes[$p['jamaat']]); ?></small>
+                                        <?php else: ?>
+                                            <small class="text-muted">—</small>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td class="text-center">
+                                        <?php if ($p['name'] === str_replace(' (Tomorrow)', '', $nextPrayerName)): ?>
+                                            <span class="badge bg-success">Next</span>
+                                        <?php else: ?>
+                                            <span class="text-muted">—</span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td class="text-center">
+                                        <button class="btn btn-sm btn-info directions-btn" type="button" 
+                                                data-lat="<?php echo htmlspecialchars($mosque['latitude'] ?? 0); ?>" 
+                                                data-lon="<?php echo htmlspecialchars($mosque['longitude'] ?? 0); ?>"
+                                                title="Get Directions">
+                                            📍 Directions
+                                        </button>
+                                    </td>
+                                </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                <?php endif; ?>
+            </div>
+        </div>
+
+        <!-- Mosque Details Section -->
+        <div class="row mb-5">
+            <div class="col-md-6">
+                <h3 class="mb-4">📍 Mosque Details</h3>
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <p class="mb-2"><strong>City:</strong> <?php echo sanitize($mosque['city']); ?></p>
+                        <p class="mb-2"><strong>Address:</strong> <?php echo sanitize($mosque['address']); ?></p>
+                        <p class="mb-2"><strong>Postcode:</strong> <?php echo sanitize($mosque['postcode']); ?></p>
+                        <?php if ($mosque['imam']): ?>
+                        <p class="mb-2"><strong>Imam:</strong> <?php echo sanitize($mosque['imam']); ?></p>
+                        <?php endif; ?>
+                        <?php if ($mosque['contact']): ?>
+                        <p class="mb-0"><strong>Contact:</strong> <?php echo sanitize($mosque['contact']); ?></p>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <h3 class="mb-4">🗺️ Location</h3>
+                <div class="card">
+                    <div class="card-body">
+                        <div class="p-4 bg-light rounded mb-3" style="height: 200px; display: flex; align-items: center; justify-content: center;">
+                            <div class="text-center">
+                                <p class="text-muted mb-0">📍 <?php echo sanitize($mosque['city']); ?></p>
+                                <p class="text-muted mb-0"><?php echo sanitize($mosque['postcode']); ?></p>
+                            </div>
+                        </div>
+                        <p class="small text-muted mb-1">Coordinates: <?php echo htmlspecialchars($mosque['latitude']); ?>, <?php echo htmlspecialchars($mosque['longitude']); ?></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="row mb-5">
+            <div class="col-12">
+                <a href="/index.php" class="btn btn-primary">← Back to All Mosques</a>
+            </div>
+        </div>
     <?php endif; ?>
 </div>
+
+<style>
+    .directions-btn {
+        transition: all 0.3s ease;
+    }
+    .directions-btn:hover {
+        transform: scale(1.05);
+    }
+    
+    table tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+</style>
+
+<script>
+    // Directions button handler
+    document.querySelectorAll('.directions-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const lat = this.dataset.lat;
+            const lon = this.dataset.lon;
+            
+            if (!lat || !lon || lat == '0' || lon == '0') {
+                alert('Location data not available for this mosque');
+                return;
+            }
+            
+            // Detect device and open appropriate maps
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+            const isAndroid = /Android/.test(navigator.userAgent);
+            
+            if (isIOS) {
+                // Apple Maps
+                window.open(`maps://maps.apple.com/?daddr=${lat},${lon}&dirflg=d`);
+            } else if (isAndroid) {
+                // Google Maps on Android
+                window.open(`https://maps.google.com/maps?daddr=${lat},${lon}`);
+            } else {
+                // Google Maps (default for desktop/other)
+                window.open(`https://maps.google.com/maps?daddr=${lat},${lon}`);
+            }
+        });
+    });
+</script>
