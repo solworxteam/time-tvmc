@@ -140,7 +140,10 @@
                                                 data-lat="<?php echo htmlspecialchars($mosque['latitude'] ?? 0); ?>" 
                                                 data-lon="<?php echo htmlspecialchars($mosque['longitude'] ?? 0); ?>"
                                                 title="Get Directions">
-                                            Directions &rarr;
+                                            <svg class="dir-icon" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+                                                <rect x="12" y="12" width="40" height="40" rx="4" transform="rotate(45 32 32)" fill="#2fa6d7"></rect>
+                                                <path d="M22 38v-8c0-3.3 2.7-6 6-6h10v-6l12 10-12 10v-6h-8v6z" fill="#111"></path>
+                                            </svg>
                                         </button>
                                     </td>
                                 </tr>
