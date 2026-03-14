@@ -140,7 +140,7 @@
                                                 data-lat="<?php echo htmlspecialchars($mosque['latitude'] ?? 0); ?>" 
                                                 data-lon="<?php echo htmlspecialchars($mosque['longitude'] ?? 0); ?>"
                                                 title="Get Directions">
-                                            📍 Directions
+                                            Directions &rarr;
                                         </button>
                                     </td>
                                 </tr>
@@ -204,6 +204,22 @@
 </style>
 
 <script>
+    function openDirections(lat, lon) {
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+
+        if (isIOS) {
+            const useApple = window.confirm('Open in Apple Maps? Tap Cancel for Google Maps.');
+            if (useApple) {
+                window.open(`https://maps.apple.com/?daddr=${lat},${lon}&dirflg=d`, '_blank');
+            } else {
+                window.open(`https://maps.google.com/maps?daddr=${lat},${lon}`, '_blank');
+            }
+            return;
+        }
+
+        window.open(`https://maps.google.com/maps?daddr=${lat},${lon}`, '_blank');
+    }
+
     // Directions button handler
     document.querySelectorAll('.directions-btn').forEach(btn => {
         btn.addEventListener('click', function() {
@@ -215,20 +231,7 @@
                 return;
             }
             
-            // Detect device and open appropriate maps
-            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-            const isAndroid = /Android/.test(navigator.userAgent);
-            
-            if (isIOS) {
-                // Apple Maps
-                window.open(`maps://maps.apple.com/?daddr=${lat},${lon}&dirflg=d`);
-            } else if (isAndroid) {
-                // Google Maps on Android
-                window.open(`https://maps.google.com/maps?daddr=${lat},${lon}`);
-            } else {
-                // Google Maps (default for desktop/other)
-                window.open(`https://maps.google.com/maps?daddr=${lat},${lon}`);
-            }
+            openDirections(lat, lon);
         });
     });
 </script>
