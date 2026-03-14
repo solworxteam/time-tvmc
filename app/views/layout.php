@@ -10,7 +10,7 @@
 <body>
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
     <div class="container">
-        <a class="navbar-brand" href="/">🕌 UK Prayer Times</a>
+        <a class="navbar-brand" href="/">🕌 Local Prayer Times</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -32,7 +32,7 @@
 
 <footer class="bg-dark text-white py-4 mt-5">
     <div class="container text-center">
-        <p>&copy; <?php echo date('Y'); ?> UK Prayer Times. All rights reserved.</p>
+        <p>&copy; <?php echo date('Y'); ?> Local Prayer Times. All rights reserved.</p>
     </div>
 </footer>
 

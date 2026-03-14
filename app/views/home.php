@@ -1,7 +1,7 @@
 <div class="container-fluid mt-4">
     <div class="row">
         <div class="col-12">
-            <h1 class="mb-2">Local Prayer Times</h1>
+            <h1 class="mb-2">Today's Prayer Times</h1>
             <p class="text-muted small mb-4">
                 <strong><?php echo date('l, d F Y'); ?></strong> | 
                 <em>Total Mosques: <?php echo count(Mosque::getAll()); ?></em>
@@ -90,38 +90,42 @@
                             <br>
                             <small class="text-muted"><?php echo sanitize($mosque['postcode']); ?></small>
                         </td>
-                        <td class="text-center <?php echo $nextPrayerKey === 'fajar_start' ? 'next-prayer-cell' : ''; ?>">
-                            <span><?php echo formatTime($prayers['fajar_start']); ?></span>
-                            <br>
-                            <strong class="d-block"><?php echo formatTime($prayers['fajar_jamaat']); ?></strong>
-                        </td>
-                        <td class="text-center <?php echo $nextPrayerKey === 'zuhr_start' ? 'next-prayer-cell' : ''; ?>">
-                            <span><?php echo formatTime($prayers['zuhr_start']); ?></span>
-                            <br>
-                            <strong class="d-block"><?php echo formatTime($prayers['zuhr_jamaat']); ?></strong>
-                        </td>
-                        <td class="text-center <?php echo $nextPrayerKey === 'asr_start' ? 'next-prayer-cell' : ''; ?>">
-                            <span><?php echo formatTime($prayers['asr_start']); ?></span>
-                            <br>
-                            <strong class="d-block"><?php echo formatTime($prayers['asr_jamaat']); ?></strong>
-                        </td>
-                        <td class="text-center <?php echo $nextPrayerKey === 'maghrib' ? 'next-prayer-cell' : ''; ?>">
-                            <span><?php echo formatTime($prayers['maghrib']); ?></span>
-                        </td>
-                        <td class="text-center <?php echo $nextPrayerKey === 'isha_start' ? 'next-prayer-cell' : ''; ?>">
-                            <span><?php echo formatTime($prayers['isha_start']); ?></span>
-                            <br>
-                            <strong class="d-block"><?php echo formatTime($prayers['isha_jamaat']); ?></strong>
+                        <td class="text-center">
+                            <div class="<?php echo $nextPrayerKey === 'fajar_start' ? 'next-prayer-chip' : 'prayer-time-stack'; ?>">
+                                <span><?php echo formatTime($prayers['fajar_start']); ?></span>
+                                <strong class="d-block"><?php echo formatTime($prayers['fajar_jamaat']); ?></strong>
+                            </div>
                         </td>
                         <td class="text-center">
-                            <button class="btn btn-sm btn-info directions-btn" type="button" 
+                            <div class="<?php echo $nextPrayerKey === 'zuhr_start' ? 'next-prayer-chip' : 'prayer-time-stack'; ?>">
+                                <span><?php echo formatTime($prayers['zuhr_start']); ?></span>
+                                <strong class="d-block"><?php echo formatTime($prayers['zuhr_jamaat']); ?></strong>
+                            </div>
+                        </td>
+                        <td class="text-center">
+                            <div class="<?php echo $nextPrayerKey === 'asr_start' ? 'next-prayer-chip' : 'prayer-time-stack'; ?>">
+                                <span><?php echo formatTime($prayers['asr_start']); ?></span>
+                                <strong class="d-block"><?php echo formatTime($prayers['asr_jamaat']); ?></strong>
+                            </div>
+                        </td>
+                        <td class="text-center">
+                            <div class="<?php echo $nextPrayerKey === 'maghrib' ? 'next-prayer-chip next-prayer-chip-single' : 'prayer-time-stack'; ?>">
+                                <span><?php echo formatTime($prayers['maghrib']); ?></span>
+                            </div>
+                        </td>
+                        <td class="text-center">
+                            <div class="<?php echo $nextPrayerKey === 'isha_start' ? 'next-prayer-chip' : 'prayer-time-stack'; ?>">
+                                <span><?php echo formatTime($prayers['isha_start']); ?></span>
+                                <strong class="d-block"><?php echo formatTime($prayers['isha_jamaat']); ?></strong>
+                            </div>
+                        </td>
+                        <td class="text-center">
+                            <button class="btn btn-sm directions-btn" type="button" 
                                     data-lat="<?php echo htmlspecialchars($mosque['latitude'] ?? 0); ?>" 
                                     data-lon="<?php echo htmlspecialchars($mosque['longitude'] ?? 0); ?>"
-                                    title="Get Directions">
-                                <svg class="dir-icon" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
-                                    <rect x="12" y="12" width="40" height="40" rx="4" transform="rotate(45 32 32)" fill="#2fa6d7"></rect>
-                                    <path d="M22 38v-8c0-3.3 2.7-6 6-6h10v-6l12 10-12 10v-6h-8v6z" fill="#111"></path>
-                                </svg>
+                                    title="Get Directions"
+                                    aria-label="Get Directions">
+                                <span class="dir-arrow" aria-hidden="true">↪</span>
                             </button>
                         </td>
                     </tr>
@@ -171,41 +175,49 @@
                             <small class="text-muted"><?php echo sanitize($mosque['postcode']); ?></small>
                         </div>
                         <div>
-                            <button class="btn btn-sm btn-info directions-btn" type="button"
+                            <button class="btn btn-sm directions-btn" type="button"
                                     data-lat="<?php echo htmlspecialchars($mosque['latitude'] ?? 0); ?>"
                                     data-lon="<?php echo htmlspecialchars($mosque['longitude'] ?? 0); ?>"
-                                    title="Get Directions">
-                                <svg class="dir-icon" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
-                                    <rect x="12" y="12" width="40" height="40" rx="4" transform="rotate(45 32 32)" fill="#2fa6d7"></rect>
-                                    <path d="M22 38v-8c0-3.3 2.7-6 6-6h10v-6l12 10-12 10v-6h-8v6z" fill="#111"></path>
-                                </svg>
+                                    title="Get Directions"
+                                    aria-label="Get Directions">
+                                <span class="dir-arrow" aria-hidden="true">↪</span>
                             </button>
                         </div>
                     </div>
                     <div class="row row-cols-3 g-2 text-center small">
-                        <div class="col <?php echo $nextPrayerCardKey === 'fajar_start' ? 'next-prayer-cell next-prayer-card-cell' : ''; ?>">
-                            <div class="text-muted prayer-col-label">Fajr</div>
-                            <div><?php echo formatTime($prayersCard['fajar_start']); ?></div>
-                            <strong><?php echo formatTime($prayersCard['fajar_jamaat']); ?></strong>
+                        <div class="col">
+                            <div class="<?php echo $nextPrayerCardKey === 'fajar_start' ? 'next-prayer-card-chip' : 'prayer-card-stack'; ?>">
+                                <div class="text-muted prayer-col-label">Fajr</div>
+                                <div><?php echo formatTime($prayersCard['fajar_start']); ?></div>
+                                <strong><?php echo formatTime($prayersCard['fajar_jamaat']); ?></strong>
+                            </div>
                         </div>
-                        <div class="col <?php echo $nextPrayerCardKey === 'zuhr_start' ? 'next-prayer-cell next-prayer-card-cell' : ''; ?>">
-                            <div class="text-muted prayer-col-label"><?php echo $zuhrLabel; ?></div>
-                            <div><?php echo formatTime($prayersCard['zuhr_start']); ?></div>
-                            <strong><?php echo formatTime($prayersCard['zuhr_jamaat']); ?></strong>
+                        <div class="col">
+                            <div class="<?php echo $nextPrayerCardKey === 'zuhr_start' ? 'next-prayer-card-chip' : 'prayer-card-stack'; ?>">
+                                <div class="text-muted prayer-col-label"><?php echo $zuhrLabel; ?></div>
+                                <div><?php echo formatTime($prayersCard['zuhr_start']); ?></div>
+                                <strong><?php echo formatTime($prayersCard['zuhr_jamaat']); ?></strong>
+                            </div>
                         </div>
-                        <div class="col <?php echo $nextPrayerCardKey === 'asr_start' ? 'next-prayer-cell next-prayer-card-cell' : ''; ?>">
-                            <div class="text-muted prayer-col-label">Asr</div>
-                            <div><?php echo formatTime($prayersCard['asr_start']); ?></div>
-                            <strong><?php echo formatTime($prayersCard['asr_jamaat']); ?></strong>
+                        <div class="col">
+                            <div class="<?php echo $nextPrayerCardKey === 'asr_start' ? 'next-prayer-card-chip' : 'prayer-card-stack'; ?>">
+                                <div class="text-muted prayer-col-label">Asr</div>
+                                <div><?php echo formatTime($prayersCard['asr_start']); ?></div>
+                                <strong><?php echo formatTime($prayersCard['asr_jamaat']); ?></strong>
+                            </div>
                         </div>
-                        <div class="col <?php echo $nextPrayerCardKey === 'maghrib' ? 'next-prayer-cell next-prayer-card-cell' : ''; ?>">
-                            <div class="text-muted prayer-col-label">Maghrib</div>
-                            <div><?php echo formatTime($prayersCard['maghrib']); ?></div>
+                        <div class="col">
+                            <div class="<?php echo $nextPrayerCardKey === 'maghrib' ? 'next-prayer-card-chip next-prayer-card-chip-single' : 'prayer-card-stack'; ?>">
+                                <div class="text-muted prayer-col-label">Maghrib</div>
+                                <div><?php echo formatTime($prayersCard['maghrib']); ?></div>
+                            </div>
                         </div>
-                        <div class="col <?php echo $nextPrayerCardKey === 'isha_start' ? 'next-prayer-cell next-prayer-card-cell' : ''; ?>">
-                            <div class="text-muted prayer-col-label">Isha</div>
-                            <div><?php echo formatTime($prayersCard['isha_start']); ?></div>
-                            <strong><?php echo formatTime($prayersCard['isha_jamaat']); ?></strong>
+                        <div class="col">
+                            <div class="<?php echo $nextPrayerCardKey === 'isha_start' ? 'next-prayer-card-chip' : 'prayer-card-stack'; ?>">
+                                <div class="text-muted prayer-col-label">Isha</div>
+                                <div><?php echo formatTime($prayersCard['isha_start']); ?></div>
+                                <strong><?php echo formatTime($prayersCard['isha_jamaat']); ?></strong>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -217,34 +229,84 @@
             .table-hover tbody tr:hover {
                 background-color: #f5f5ff !important;
             }
-            .badge {
-                font-size: 0.85rem;
-            }
             .prayer-col-label {
                 font-size: 0.7rem;
             }
-            .next-prayer-cell {
-                background-color: #d1f7df !important;
-                border: 1px solid #5ec27b;
-                border-radius: 6px;
-                font-weight: 700;
+            .prayer-time-stack {
+                display: inline-flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 0.15rem;
             }
-            .next-prayer-card-cell {
-                border-radius: 8px;
-                padding: 6px 2px;
+            .next-prayer-chip {
+                display: inline-flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 0.15rem;
+                min-width: 86px;
+                padding: 0.45rem 0.9rem;
+                border-radius: 999px;
+                background: linear-gradient(135deg, #29b765 0%, #239656 100%);
+                color: #ffffff;
+                font-weight: 700;
+                box-shadow: 0 10px 22px rgba(35, 150, 86, 0.2);
+            }
+            .next-prayer-chip span,
+            .next-prayer-chip strong {
+                color: inherit;
+            }
+            .next-prayer-chip-single {
+                justify-content: center;
+                min-height: 52px;
+            }
+            .prayer-card-stack {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 0.15rem;
+            }
+            .next-prayer-card-chip {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                gap: 0.15rem;
+                height: 100%;
+                padding: 0.5rem 0.35rem;
+                border-radius: 16px;
+                background: linear-gradient(135deg, #29b765 0%, #239656 100%);
+                color: #ffffff;
+                box-shadow: 0 10px 22px rgba(35, 150, 86, 0.2);
+            }
+            .next-prayer-card-chip .prayer-col-label,
+            .next-prayer-card-chip div,
+            .next-prayer-card-chip strong {
+                color: inherit !important;
+            }
+            .next-prayer-card-chip-single {
+                min-height: 100%;
             }
             .sticky-top {
                 top: 0;
                 z-index: 100;
             }
             
-            .prayer-row.nearest {
+            .prayer-row.nearest td {
                 background-color: #fff3cd !important;
-                border-left: 5px solid #ffc107;
             }
             
-            .prayer-row.nearest:hover {
-                background-color: #ffe9a8 !important;
+            .table-hover tbody tr.prayer-row.nearest:hover td {
+                background-color: #ffe69c !important;
+            }
+
+            .card.prayer-row.nearest,
+            .card.prayer-row.nearest .card-body {
+                background-color: #fff3cd !important;
+            }
+
+            .card.prayer-row.nearest:hover,
+            .card.prayer-row.nearest:hover .card-body {
+                background-color: #ffe69c !important;
             }
             
             .distance-badge {
@@ -264,8 +326,51 @@
             }
         </style>
 
+        <div class="modal fade" id="mapChoiceModal" tabindex="-1" aria-labelledby="mapChoiceModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="mapChoiceModalLabel">Open Directions</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        Choose which maps app you want to use for directions.
+                    </div>
+                    <div class="modal-footer justify-content-center">
+                        <button type="button" class="btn btn-outline-primary" id="openAppleMapsBtn">Apple Maps</button>
+                        <button type="button" class="btn btn-primary" id="openGoogleMapsBtn">Google Maps</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <script>
             const locationStatusEl = document.getElementById('location-status');
+            const mapChoiceModalEl = document.getElementById('mapChoiceModal');
+            const openAppleMapsBtn = document.getElementById('openAppleMapsBtn');
+            const openGoogleMapsBtn = document.getElementById('openGoogleMapsBtn');
+
+            function openMapLink(provider, lat, lon) {
+                const targetUrl = provider === 'apple'
+                    ? `https://maps.apple.com/?daddr=${lat},${lon}&dirflg=d`
+                    : `https://maps.google.com/maps?daddr=${lat},${lon}`;
+
+                window.open(targetUrl, '_blank');
+            }
+
+            openAppleMapsBtn.addEventListener('click', function() {
+                openMapLink('apple', mapChoiceModalEl.dataset.lat, mapChoiceModalEl.dataset.lon);
+                if (typeof bootstrap !== 'undefined') {
+                    bootstrap.Modal.getOrCreateInstance(mapChoiceModalEl).hide();
+                }
+            });
+
+            openGoogleMapsBtn.addEventListener('click', function() {
+                openMapLink('google', mapChoiceModalEl.dataset.lat, mapChoiceModalEl.dataset.lon);
+                if (typeof bootstrap !== 'undefined') {
+                    bootstrap.Modal.getOrCreateInstance(mapChoiceModalEl).hide();
+                }
+            });
 
             function clearNearestHighlight() {
                 document.querySelectorAll('.prayer-row.nearest').forEach(row => {
@@ -391,16 +496,17 @@
                 const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
 
                 if (isIOS) {
-                    const useApple = window.confirm('Open in Apple Maps? Tap Cancel for Google Maps.');
-                    if (useApple) {
-                        window.open(`https://maps.apple.com/?daddr=${lat},${lon}&dirflg=d`, '_blank');
+                    if (typeof bootstrap !== 'undefined') {
+                        mapChoiceModalEl.dataset.lat = lat;
+                        mapChoiceModalEl.dataset.lon = lon;
+                        bootstrap.Modal.getOrCreateInstance(mapChoiceModalEl).show();
                     } else {
-                        window.open(`https://maps.google.com/maps?daddr=${lat},${lon}`, '_blank');
+                        openMapLink('apple', lat, lon);
                     }
                     return;
                 }
 
-                window.open(`https://maps.google.com/maps?daddr=${lat},${lon}`, '_blank');
+                openMapLink('google', lat, lon);
             }
 
             shouldAutoPromptLocation();
@@ -441,7 +547,7 @@
         <div class="col-md-12">
             <hr>
             <p class="text-center text-muted small">
-                <strong>Start time:</strong> Main prayer time | <strong>Bold time:</strong> Congregation times | <strong>Green prayer block:</strong> Next upcoming prayer | <strong>Directions icon:</strong> Get directions | <strong>Mosque names:</strong> Click to view details
+                <strong>Start time:</strong> Main prayer time | <strong>Bold time:</strong> Congregation times | <strong>Green prayer chip:</strong> Next upcoming prayer | <strong>Turn arrow:</strong> Get directions | <strong>Mosque names:</strong> Click to view details
             </p>
         </div>
     </div>

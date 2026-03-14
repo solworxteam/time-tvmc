@@ -153,18 +153,45 @@ footer {
     animation: fadeIn 0.3s ease-in-out;
 }
 
-/* Directions icon */
-.dir-icon {
-    width: 18px;
-    height: 18px;
+/* Directions arrow */
+.dir-arrow {
     display: inline-block;
-    vertical-align: text-bottom;
+    color: inherit;
+    font-size: 1.15rem;
+    font-weight: 700;
+    line-height: 1;
 }
 
-.directions-btn .dir-icon {
+.directions-btn {
+    background-color: #ffffff;
+    border: 1px solid #b6d4fe;
+    color: #0d6efd;
+    transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.directions-btn:hover,
+.directions-btn:focus {
+    background-color: #eff6ff;
+    border-color: #86b7fe;
+    color: #0a58ca;
+}
+
+.directions-btn .dir-arrow {
     pointer-events: none;
 }
 
-.directions-link .dir-icon {
-    margin-right: 6px;
+.directions-link {
+    background-color: #ffffff;
+    border: 1px solid #b6d4fe;
+    color: #0d6efd;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.directions-link:hover,
+.directions-link:focus {
+    background-color: #eff6ff;
+    border-color: #86b7fe;
+    color: #0a58ca;
 }

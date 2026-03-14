@@ -136,14 +136,12 @@
                                         <?php endif; ?>
                                     </td>
                                     <td class="text-center">
-                                        <button class="btn btn-sm btn-info directions-btn" type="button" 
+                                        <button class="btn btn-sm directions-btn" type="button" 
                                                 data-lat="<?php echo htmlspecialchars($mosque['latitude'] ?? 0); ?>" 
                                                 data-lon="<?php echo htmlspecialchars($mosque['longitude'] ?? 0); ?>"
-                                                title="Get Directions">
-                                            <svg class="dir-icon" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
-                                                <rect x="12" y="12" width="40" height="40" rx="4" transform="rotate(45 32 32)" fill="#2fa6d7"></rect>
-                                                <path d="M22 38v-8c0-3.3 2.7-6 6-6h10v-6l12 10-12 10v-6h-8v6z" fill="#111"></path>
-                                            </svg>
+                                                title="Get Directions"
+                                                aria-label="Get Directions">
+                                            <span class="dir-arrow" aria-hidden="true">↪</span>
                                         </button>
                                     </td>
                                 </tr>
@@ -206,21 +204,66 @@
     }
 </style>
 
+<div class="modal fade" id="mapChoiceModal" tabindex="-1" aria-labelledby="mapChoiceModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="mapChoiceModalLabel">Open Directions</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Choose which maps app you want to use for directions.
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-outline-primary" id="openAppleMapsBtn">Apple Maps</button>
+                <button type="button" class="btn btn-primary" id="openGoogleMapsBtn">Google Maps</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
+    const mapChoiceModalEl = document.getElementById('mapChoiceModal');
+    const openAppleMapsBtn = document.getElementById('openAppleMapsBtn');
+    const openGoogleMapsBtn = document.getElementById('openGoogleMapsBtn');
+
+    function openMapLink(provider, lat, lon) {
+        const targetUrl = provider === 'apple'
+            ? `https://maps.apple.com/?daddr=${lat},${lon}&dirflg=d`
+            : `https://maps.google.com/maps?daddr=${lat},${lon}`;
+
+        window.open(targetUrl, '_blank');
+    }
+
+    openAppleMapsBtn.addEventListener('click', function() {
+        openMapLink('apple', mapChoiceModalEl.dataset.lat, mapChoiceModalEl.dataset.lon);
+        if (typeof bootstrap !== 'undefined') {
+            bootstrap.Modal.getOrCreateInstance(mapChoiceModalEl).hide();
+        }
+    });
+
+    openGoogleMapsBtn.addEventListener('click', function() {
+        openMapLink('google', mapChoiceModalEl.dataset.lat, mapChoiceModalEl.dataset.lon);
+        if (typeof bootstrap !== 'undefined') {
+            bootstrap.Modal.getOrCreateInstance(mapChoiceModalEl).hide();
+        }
+    });
+
     function openDirections(lat, lon) {
         const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
 
         if (isIOS) {
-            const useApple = window.confirm('Open in Apple Maps? Tap Cancel for Google Maps.');
-            if (useApple) {
-                window.open(`https://maps.apple.com/?daddr=${lat},${lon}&dirflg=d`, '_blank');
+            if (typeof bootstrap !== 'undefined') {
+                mapChoiceModalEl.dataset.lat = lat;
+                mapChoiceModalEl.dataset.lon = lon;
+                bootstrap.Modal.getOrCreateInstance(mapChoiceModalEl).show();
             } else {
-                window.open(`https://maps.google.com/maps?daddr=${lat},${lon}`, '_blank');
+                openMapLink('apple', lat, lon);
             }
             return;
         }
 
-        window.open(`https://maps.google.com/maps?daddr=${lat},${lon}`, '_blank');
+        openMapLink('google', lat, lon);
     }
 
     // Directions button handler
