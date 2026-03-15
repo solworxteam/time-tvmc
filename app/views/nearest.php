@@ -35,6 +35,19 @@
 </div>
 
 <script>
+async function fetchNearestEndpoint(lat, lon) {
+    const query = 'lat=' + encodeURIComponent(lat) + '&lon=' + encodeURIComponent(lon);
+    const primaryUrl = '/api/mosques-with-distance?' + query;
+    const fallbackUrl = '/api/mosques-with-distance.php?' + query;
+
+    const primaryResponse = await fetch(primaryUrl);
+    if (primaryResponse.status === 404) {
+        return fetch(fallbackUrl);
+    }
+
+    return primaryResponse;
+}
+
 document.getElementById('locateBtn').addEventListener('click', function() {
     if (!navigator.geolocation) {
         document.getElementById('status').innerHTML = '<div class="alert alert-danger">Geolocation is not supported by your browser.</div>';
@@ -50,7 +63,7 @@ document.getElementById('locateBtn').addEventListener('click', function() {
         const lon = position.coords.longitude;
         
         // Fetch mosques and find nearest
-        fetch('/api/mosques-with-distance?lat=' + lat + '&lon=' + lon)
+        fetchNearestEndpoint(lat, lon)
             .then(async (response) => {
                 const contentType = response.headers.get('content-type') || '';
                 const rawBody = await response.text();
