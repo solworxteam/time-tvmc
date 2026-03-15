@@ -105,7 +105,13 @@
                                 
                                 // Find next prayer
                                 foreach ($prayers as $p) {
-                                    $prayerTimeStr = date('H:i', strtotime($prayerTimes[$p['start']]));
+                                    $comparisonField = ($p['jamaat'] && !empty($prayerTimes[$p['jamaat']])) ? $p['jamaat'] : $p['start'];
+                                    $comparisonTime = $prayerTimes[$comparisonField] ?? null;
+                                    if (empty($comparisonTime)) {
+                                        continue;
+                                    }
+
+                                    $prayerTimeStr = date('H:i', strtotime($comparisonTime));
                                     $prayerTimestamp = strtotime(date('Y-m-d') . ' ' . $prayerTimeStr);
                                     if ($prayerTimestamp > $currentTime) {
                                         $nextPrayerName = $p['name'];

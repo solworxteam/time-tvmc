@@ -55,18 +55,23 @@
                         if (!$prayers) continue;
                         
                         $prayerTimes = [
-                            ['name' => 'Fajr', 'key' => 'fajar_start', 'time' => $prayers['fajar_start']],
-                            ['name' => $zuhrLabel, 'key' => 'zuhr_start', 'time' => $prayers['zuhr_start']],
-                            ['name' => 'Asr', 'key' => 'asr_start', 'time' => $prayers['asr_start']],
-                            ['name' => 'Maghrib', 'key' => 'maghrib', 'time' => $prayers['maghrib']],
-                            ['name' => 'Isha', 'key' => 'isha_start', 'time' => $prayers['isha_start']],
+                            ['name' => 'Fajr', 'key' => 'fajar_start', 'start' => $prayers['fajar_start'], 'jamaat' => $prayers['fajar_jamaat'] ?? null],
+                            ['name' => $zuhrLabel, 'key' => 'zuhr_start', 'start' => $prayers['zuhr_start'], 'jamaat' => $prayers['zuhr_jamaat'] ?? null],
+                            ['name' => 'Asr', 'key' => 'asr_start', 'start' => $prayers['asr_start'], 'jamaat' => $prayers['asr_jamaat'] ?? null],
+                            ['name' => 'Maghrib', 'key' => 'maghrib', 'start' => $prayers['maghrib'], 'jamaat' => null],
+                            ['name' => 'Isha', 'key' => 'isha_start', 'start' => $prayers['isha_start'], 'jamaat' => $prayers['isha_jamaat'] ?? null],
                         ];
 
                         $nextPrayerKey = null;
                         foreach ($prayerTimes as $prayer) {
-                            $prayerTimeStr = date('H:i', strtotime($prayer['time']));
+                            $comparisonTime = !empty($prayer['jamaat']) ? $prayer['jamaat'] : $prayer['start'];
+                            if (empty($comparisonTime)) {
+                                continue;
+                            }
+
+                            $prayerTimeStr = date('H:i', strtotime($comparisonTime));
                             $prayerTimestamp = strtotime(date('Y-m-d') . ' ' . $prayerTimeStr);
-                            
+
                             if ($prayerTimestamp > $currentTime) {
                                 $nextPrayerKey = $prayer['key'];
                                 break;
@@ -143,15 +148,20 @@
                 if (!$prayersCard) continue;
 
                 $cardPrayerTimes = [
-                    ['name' => 'Fajr',        'key' => 'fajar_start', 'time' => $prayersCard['fajar_start']],
-                    ['name' => $zuhrLabel,    'key' => 'zuhr_start', 'time' => $prayersCard['zuhr_start']],
-                    ['name' => 'Asr',         'key' => 'asr_start', 'time' => $prayersCard['asr_start']],
-                    ['name' => 'Maghrib',     'key' => 'maghrib', 'time' => $prayersCard['maghrib']],
-                    ['name' => 'Isha',        'key' => 'isha_start', 'time' => $prayersCard['isha_start']],
+                    ['name' => 'Fajr',        'key' => 'fajar_start', 'start' => $prayersCard['fajar_start'], 'jamaat' => $prayersCard['fajar_jamaat'] ?? null],
+                    ['name' => $zuhrLabel,    'key' => 'zuhr_start', 'start' => $prayersCard['zuhr_start'], 'jamaat' => $prayersCard['zuhr_jamaat'] ?? null],
+                    ['name' => 'Asr',         'key' => 'asr_start', 'start' => $prayersCard['asr_start'], 'jamaat' => $prayersCard['asr_jamaat'] ?? null],
+                    ['name' => 'Maghrib',     'key' => 'maghrib', 'start' => $prayersCard['maghrib'], 'jamaat' => null],
+                    ['name' => 'Isha',        'key' => 'isha_start', 'start' => $prayersCard['isha_start'], 'jamaat' => $prayersCard['isha_jamaat'] ?? null],
                 ];
                 $nextPrayerCardKey = null;
                 foreach ($cardPrayerTimes as $cp) {
-                    $cardPrayerTimeStr = date('H:i', strtotime($cp['time']));
+                    $comparisonTime = !empty($cp['jamaat']) ? $cp['jamaat'] : $cp['start'];
+                    if (empty($comparisonTime)) {
+                        continue;
+                    }
+
+                    $cardPrayerTimeStr = date('H:i', strtotime($comparisonTime));
                     $cpTs = strtotime(date('Y-m-d') . ' ' . $cardPrayerTimeStr);
                     if ($cpTs > $currentTime) { $nextPrayerCardKey = $cp['key']; break; }
                 }

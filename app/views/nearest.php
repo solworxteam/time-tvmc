@@ -51,12 +51,34 @@ document.getElementById('locateBtn').addEventListener('click', function() {
         
         // Fetch mosques and find nearest
         fetch('/api/mosques-with-distance?lat=' + lat + '&lon=' + lon)
-            .then(r => r.json())
+            .then(async (response) => {
+                const contentType = response.headers.get('content-type') || '';
+                const rawBody = await response.text();
+
+                if (!response.ok) {
+                    throw new Error('Nearest service failed (HTTP ' + response.status + ').');
+                }
+
+                if (!contentType.toLowerCase().includes('application/json')) {
+                    throw new Error('Nearest service returned an invalid response format.');
+                }
+
+                try {
+                    return JSON.parse(rawBody);
+                } catch (parseError) {
+                    throw new Error('Nearest service returned unreadable data.');
+                }
+            })
             .then(data => {
+                if (!Array.isArray(data)) {
+                    throw new Error('Nearest service returned unexpected data.');
+                }
                 showResults(data, lat, lon);
             })
             .catch(err => {
                 document.getElementById('status').innerHTML = '<div class="alert alert-danger">Error: ' + err.message + '</div>';
+                document.getElementById('locateBtn').disabled = false;
+                document.getElementById('locateBtn').textContent = '📍 Use My Location';
             });
     }, function(error) {
         let msg = 'Location access denied: ' + error.message;
