@@ -3,6 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="<?php echo isset($pageDescription) ? sanitize($pageDescription) : 'Prayer times, mosque locations, and nearest-mosque tools for UK communities.'; ?>">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <script>
+        (function () {
+            try {
+                var stored = localStorage.getItem('pt-dark');
+                var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+                if (stored === '1' || (stored === null && prefersDark)) {
+                    document.documentElement.classList.add('dark');
+                }
+            } catch (e) {}
+        })();
+    </script>
     <title><?php echo isset($pageTitle) ? sanitize($pageTitle) . ' - ' : ''; ?>Prayer Times - UK Mosques</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -11,7 +24,7 @@
             corePlugins: { preflight: false }
         };
     </script>
-    <script src="/js/lucide.min.js"></script>
+    <script src="https://unpkg.com/lucide@0.542.0/dist/umd/lucide.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/css/style.css">
     <style>
@@ -99,8 +112,10 @@
             min-height: calc(100vh - 220px);
         }
 
-        .pt-page-shell .container {
-            max-width: 1200px;
+        .pt-page-shell .container,
+        .pt-site-nav .container,
+        .pt-footer .container {
+            max-width: 1280px;
         }
 
         .pt-inner-header {

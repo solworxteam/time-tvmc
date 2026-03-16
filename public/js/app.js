@@ -62,7 +62,7 @@
 
   /* ── State ──────────────────────────────────────────────────── */
 
-  var is24Hour  = true;
+  var is24Hour  = localStorage.getItem('pt-timefmt') !== '12';
   var darkMode  = localStorage.getItem('pt-dark') === '1';
   var favorites = new Set(JSON.parse(localStorage.getItem('pt-favs') || '[]'));
   var userLat   = null;
@@ -86,6 +86,16 @@
   function $id(id) { return document.getElementById(id); }
   function $all(sel, ctx) { return (ctx || document).querySelectorAll(sel); }
 
+  function renderIcon(el, name) {
+    if (!el) return;
+    el.setAttribute('data-lucide', name);
+    if (window.lucide && lucide.icons && lucide.icons[name]) {
+      el.innerHTML = lucide.icons[name].toSvg({ width: 18, height: 18 });
+      return;
+    }
+    if (window.lucide) { lucide.createIcons(); }
+  }
+
   /* ── Dark mode ──────────────────────────────────────────────── */
 
   function applyDark(on) {
@@ -93,8 +103,7 @@
     if (on) { html.classList.add('dark'); } else { html.classList.remove('dark'); }
     var icon = $id('pt-dark-icon');
     if (icon) {
-      icon.setAttribute('data-lucide', on ? 'sun' : 'moon');
-      if (window.lucide) { lucide.createIcons(); }
+      renderIcon(icon, on ? 'sun' : 'moon');
     }
   }
 
@@ -354,8 +363,7 @@
 
     var icon = $id('pt-fmt-icon');
     if (icon) {
-      icon.setAttribute('data-lucide', is24Hour ? 'clock' : 'clock-12');
-      if (window.lucide) { lucide.createIcons(); }
+      renderIcon(icon, is24Hour ? 'clock' : 'clock-3');
     }
   }
 
@@ -364,8 +372,10 @@
   function initTimeFormat() {
     var btn = $id('pt-fmt-btn');
     if (!btn) return;
+    applyTimeFormat();
     btn.addEventListener('click', function () {
       is24Hour = !is24Hour;
+      localStorage.setItem('pt-timefmt', is24Hour ? '24' : '12');
       applyTimeFormat();
     });
   }

@@ -125,6 +125,45 @@ function getDistance($lat1, $lon1, $lat2, $lon2) {
 }
 
 /**
+ * Determine current and next prayer keys for a mosque schedule.
+ *
+ * @param array $prayerRow
+ * @param array $prayerDefs
+ * @param int $nowUnix
+ * @return array{next:string,current:?string}
+ */
+function getNextCurrentPrayer(array $prayerRow, array $prayerDefs, $nowUnix = null) {
+    $now = is_null($nowUnix) ? time() : (int)$nowUnix;
+    $next = null;
+    $current = null;
+
+    foreach ($prayerDefs as $def) {
+        $startVal = $prayerRow[$def['start']] ?? '';
+        $jamaatVal = (!empty($def['jamaat']) && !empty($prayerRow[$def['jamaat']])) ? $prayerRow[$def['jamaat']] : '';
+        $compareVal = $jamaatVal ?: $startVal;
+
+        if (empty($compareVal)) {
+            continue;
+        }
+
+        $timestamp = strtotime(date('Y-m-d') . ' ' . date('H:i', strtotime($compareVal)));
+        if ($timestamp > $now) {
+            if ($next === null) {
+                $next = $def['key'];
+            }
+        } else {
+            $current = $def['key'];
+        }
+    }
+
+    if ($next === null) {
+        $next = 'fajr';
+    }
+
+    return ['next' => $next, 'current' => $current];
+}
+
+/**
  * Validate date format
  */
 function validateDate($date, $format = 'Y-m-d') {

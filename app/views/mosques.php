@@ -48,10 +48,9 @@
                             <div class="pt-soft-panel p-3 mb-4">
                                 <div class="d-flex align-items-center gap-2 text-muted small mb-2">
                                     <i data-lucide="map-pinned" style="width:14px;height:14px"></i>
-                                    <span>Location details</span>
+                                    <span>Area</span>
                                 </div>
-                                <div class="fw-semibold"><?php echo sanitize($mosque['address']); ?></div>
-                                <div class="text-muted small"><?php echo sanitize($mosque['postcode']); ?></div>
+                                <div class="fw-semibold"><?php echo !empty($mosque['area']) ? sanitize($mosque['area']) : 'Area not specified'; ?></div>
                             </div>
 
                             <div class="mt-auto d-flex flex-column flex-sm-row gap-2">
