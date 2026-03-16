@@ -3,9 +3,10 @@ $basePath = file_exists(__DIR__ . '/../bootstrap.php') ? dirname(__DIR__) : __DI
 require_once $basePath . '/bootstrap.php';
 
 try {
-    $mosqueId = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+    $rawId = isset($_GET['id']) ? $_GET['id'] : '';
+    $mosqueId = (int)$rawId;
 
-    if (!$mosqueId) {
+    if ($mosqueId < 1) {
         header('Location: /mosques.php');
         exit;
     }
