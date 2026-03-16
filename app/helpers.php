@@ -142,6 +142,7 @@ function getNextCurrentPrayer(array $prayerRow, array $prayerDefs, $nowUnix = nu
         $def = $prayerDefs[$i];
         $startVal = $prayerRow[$def['start']] ?? '';
         $jamaatVal = (!empty($def['jamaat']) && !empty($prayerRow[$def['jamaat']])) ? $prayerRow[$def['jamaat']] : '';
+        $hasValidTimes = !empty($startVal) && !empty($jamaatVal);
         if (empty($startVal)) continue;
 
         $startTs = strtotime(date('Y-m-d') . ' ' . date('H:i', strtotime($startVal)));
@@ -149,16 +150,16 @@ function getNextCurrentPrayer(array $prayerRow, array $prayerDefs, $nowUnix = nu
         if ($jamaatVal) {
             $endTs = strtotime(date('Y-m-d') . ' ' . date('H:i', strtotime($jamaatVal)));
         } else {
-            // Use next prayer's start as end, or far future if last
             if ($i + 1 < $count) {
                 $nextDef = $prayerDefs[$i + 1];
                 $nextStartVal = $prayerRow[$nextDef['start']] ?? '';
                 $endTs = $nextStartVal ? strtotime(date('Y-m-d') . ' ' . date('H:i', strtotime($nextStartVal))) : null;
             }
-            if (!$endTs) $endTs = $startTs + 7200; // fallback: 2hr window
+            if (!$endTs) $endTs = $startTs + 7200;
         }
 
-        if ($now >= $startTs && $now <= $endTs) {
+        // Only highlight as current if both start and congregation times are present
+        if ($hasValidTimes && $now >= $startTs && $now <= $endTs) {
             $current = $def['key'];
         }
         if ($startTs > $now && $next === null) {
