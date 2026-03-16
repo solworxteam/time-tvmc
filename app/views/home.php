@@ -1,6 +1,6 @@
-﻿<?php
+<?php
 /**
- * Home view – Figma-designed prayer times cards
+ * Home view - Figma-designed prayer times cards
  * Data: $todayPrayers from PrayerTime::getTodayPrayerTimes()
  */
 
@@ -17,10 +17,15 @@ $allMosques = Mosque::getAll();
 
 // Build JS mosque data array (no secrets)
 $mosqueDataJs = [];
+$hasSunrise = false;
 foreach ($allMosques as $m) {
     $mid = $m['id'];
     $p   = $prayersByMosque[$mid] ?? null;
     if (!$p) continue;
+    $sunrise = $p['sunrise'] ?? '';
+    if (!empty($sunrise)) {
+        $hasSunrise = true;
+    }
     $mosqueDataJs[] = [
         'id'      => (string)$mid,
         'name'    => $m['name'],
@@ -31,6 +36,7 @@ foreach ($allMosques as $m) {
         'lon'     => (float)($m['longitude'] ?? 0),
         'prayers' => [
             'fajr'    => ['start' => $p['fajar_start'] ?? '',  'jamaat' => $p['fajar_jamaat'] ?? ''],
+            'sunrise' => ['start' => $sunrise,                 'jamaat' => ''],
             'zuhr'    => ['start' => $p['zuhr_start'] ?? '',   'jamaat' => $p['zuhr_jamaat'] ?? ''],
             'asr'     => ['start' => $p['asr_start'] ?? '',    'jamaat' => $p['asr_jamaat'] ?? ''],
             'maghrib' => ['start' => $p['maghrib'] ?? '',      'jamaat' => ''],
@@ -48,12 +54,35 @@ $prayerDefs = [
     ['key' => 'isha',    'start' => 'isha_start',   'jamaat' => 'isha_jamaat'],
 ];
 
+$displayPrayerDefs = [
+    ['key' => 'fajr', 'start' => 'fajar_start', 'jamaat' => 'fajar_jamaat'],
+];
+
+if ($hasSunrise) {
+    $displayPrayerDefs[] = ['key' => 'sunrise', 'start' => 'sunrise', 'jamaat' => null];
+}
+
+$displayPrayerDefs[] = ['key' => 'zuhr', 'start' => 'zuhr_start', 'jamaat' => 'zuhr_jamaat'];
+$displayPrayerDefs[] = ['key' => 'asr', 'start' => 'asr_start', 'jamaat' => 'asr_jamaat'];
+$displayPrayerDefs[] = ['key' => 'maghrib', 'start' => 'maghrib', 'jamaat' => null];
+$displayPrayerDefs[] = ['key' => 'isha', 'start' => 'isha_start', 'jamaat' => 'isha_jamaat'];
+
 $prayerLabels = [
     'fajr'    => 'Fajr',
+    'sunrise' => 'Sunrise',
     'zuhr'    => $zuhrLabel,
     'asr'     => 'Asr',
     'maghrib' => 'Maghrib',
     'isha'    => 'Isha',
+];
+
+$prayerIcons = [
+    'fajr' => 'moon-star',
+    'sunrise' => 'sunrise',
+    'zuhr' => 'sun',
+    'asr' => 'cloud-sun',
+    'maghrib' => 'sunset',
+    'isha' => 'moon',
 ];
 
 function getNextCurrentPrayer(array $p, array $defs, int $now): array {
@@ -114,9 +143,7 @@ window.ZUHR_LABEL  = <?php echo json_encode($zuhrLabel); ?>;
 .dark .pt-card-address { color: #9ca3af; }
 .pt-card-meta { font-size: .75rem; color: #9ca3af; margin-top: .25rem; display: flex; flex-wrap: wrap; gap: .4rem .75rem; align-items: center; }
 .dark .pt-card-meta { color: #6b7280; }
-.pt-grid { display: grid; grid-template-columns: repeat(5,1fr); gap: .75rem; margin-top: 1rem; }
-@media(max-width:600px){ .pt-grid { grid-template-columns: repeat(3,1fr); } }
-@media(max-width:380px){ .pt-grid { grid-template-columns: repeat(2,1fr); } }
+.pt-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: .75rem; margin-top: 1rem; }
 .pt-pcell { border: 1px solid #e5e7eb; border-radius: .75rem; padding: .625rem .5rem; text-align: center; transition: all .15s; }
 .dark .pt-pcell { border-color: #4b5563; background: rgba(55,65,81,.4); }
 .pt-pcell.is-next { border: 2px solid #22c55e; background: #dcfce7; }
@@ -124,6 +151,7 @@ window.ZUHR_LABEL  = <?php echo json_encode($zuhrLabel); ?>;
 .pt-pcell.is-current { border: 1px solid #93c5fd; background: #eff6ff; }
 .dark .pt-pcell.is-current { border-color: #3b82f6; background: rgba(59,130,246,.15); }
 .pt-pcell-label { font-size: .7rem; font-weight: 600; color: #6b7280; margin-bottom: .2rem; }
+.pt-pcell-icon { display: flex; justify-content: center; margin-bottom: .3rem; }
 .dark .pt-pcell-label { color: #9ca3af; }
 .pt-pcell.is-next .pt-pcell-label { color: #15803d; }
 .dark .pt-pcell.is-next .pt-pcell-label { color: #4ade80; }
@@ -153,6 +181,19 @@ window.ZUHR_LABEL  = <?php echo json_encode($zuhrLabel); ?>;
 .pt-geo-error { background: #fefce8; border: 1px solid #fde68a; color: #854d0e; display: flex; gap: .75rem; align-items: flex-start; }
 .dark .pt-geo-error { background: rgba(161,98,7,.1); border-color: #78350f; color: #fcd34d; }
 #pt-no-results { text-align: center; color: #9ca3af; padding: 3rem 0; display: none; }
+.pt-header-nav { display: flex; align-items: center; gap: .4rem; }
+.pt-brand-mark { align-items: center; background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.18); border-radius: 999px; display: inline-flex; height: 2rem; justify-content: center; width: 2rem; }
+.pt-header-link { border-radius: 999px; color: rgba(255,255,255,.88); font-size: .92rem; font-weight: 600; padding: .45rem .8rem; text-decoration: none; transition: background-color .18s ease, color .18s ease; }
+.pt-header-link:hover, .pt-header-link.is-active { background: rgba(255,255,255,.16); color: #fff; }
+.pt-icon-btn { align-items: center; background: rgba(255,255,255,.12); border: 1px solid rgba(34,197,94,.18); border-radius: 999px; color: #166534; display: inline-flex; gap: .35rem; height: 2.2rem; justify-content: center; padding: 0 .75rem; }
+.pt-icon-btn:hover { background: #f0fdf4; color: #166534; }
+.dark .pt-icon-btn { background: rgba(15,23,42,.55); border-color: #166534; color: #86efac; }
+.dark .pt-icon-btn:hover { background: #14532d; color: #dcfce7; }
+.pt-legend-note { color: #64748b; }
+.dark .pt-legend-note { color: #e2e8f0; }
+@media(max-width:767px){
+    .pt-header-nav { display: none; }
+}
 </style>
 
 <?php if (empty($todayPrayers)): ?>
@@ -163,16 +204,37 @@ window.ZUHR_LABEL  = <?php echo json_encode($zuhrLabel); ?>;
 
 <div id="pt-home">
     <header id="pt-header">
-        <div class="container d-flex align-items-center justify-content-between gap-3" style="max-width:1200px">
-            <div>
-                <h1 style="font-size:1.75rem;font-weight:700;margin:0">Prayer Times</h1>
-                <p style="margin:.25rem 0 0;color:rgba(255,255,255,.85);font-size:.9rem"><?php echo date('l, d F Y'); ?></p>
+        <div class="container" style="max-width:1200px">
+            <div class="d-flex align-items-center justify-content-between gap-3 flex-wrap">
+                <div>
+                    <div class="d-flex align-items-center gap-2" style="font-size:1.05rem;font-weight:700">
+                        <span class="pt-brand-mark" aria-hidden="true"><i data-lucide="landmark" style="width:16px;height:16px"></i></span>
+                        <span>Local Prayer Times</span>
+                    </div>
+                    <p style="margin:.4rem 0 0;color:rgba(255,255,255,.85);font-size:.9rem">Live prayer times and mosque directions across your area.</p>
+                </div>
+                <div class="d-flex align-items-center gap-2 ms-auto">
+                    <nav class="pt-header-nav" aria-label="Primary navigation">
+                        <a class="pt-header-link is-active" href="/" aria-current="page">Home</a>
+                        <a class="pt-header-link" href="/mosques.php">Mosques</a>
+                        <a class="pt-header-link" href="/nearest.php">Find Nearest</a>
+                    </nav>
+                    <button id="pt-dark-btn" aria-label="Toggle dark mode"
+                        style="background:rgba(255,255,255,.15);border:none;border-radius:.5rem;width:2.25rem;height:2.25rem;
+                               display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff">
+                        <i id="pt-dark-icon" data-lucide="moon" style="width:18px;height:18px"></i>
+                    </button>
+                </div>
             </div>
-            <button id="pt-dark-btn" aria-label="Toggle dark mode"
-                style="background:rgba(255,255,255,.15);border:none;border-radius:.5rem;width:2.25rem;height:2.25rem;
-                       display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff">
-                <i id="pt-dark-icon" data-lucide="moon" style="width:18px;height:18px"></i>
-            </button>
+            <div class="d-flex d-md-none gap-2 flex-wrap mt-3">
+                <a class="pt-header-link is-active" href="/" aria-current="page">Home</a>
+                <a class="pt-header-link" href="/mosques.php">Mosques</a>
+                <a class="pt-header-link" href="/nearest.php">Find Nearest</a>
+            </div>
+            <div class="mt-4">
+                <h1 style="font-size:1.9rem;font-weight:700;margin:0">Prayer Times</h1>
+                <p style="margin:.25rem 0 0;color:rgba(255,255,255,.85);font-size:.95rem"><?php echo date('l, d F Y'); ?></p>
+            </div>
         </div>
     </header>
 
@@ -287,16 +349,18 @@ window.ZUHR_LABEL  = <?php echo json_encode($zuhrLabel); ?>;
                     </div>
                     <div class="d-flex align-items-center gap-2 flex-shrink-0">
                         <span class="pt-nearest-badge" style="display:none">Nearest</span>
-                        <button class="directions-btn btn btn-sm btn-outline-secondary"
+                        <button class="directions-btn pt-icon-btn"
                                 data-lat="<?php echo htmlspecialchars($mosque['latitude'] ?? 0); ?>"
                                 data-lon="<?php echo htmlspecialchars($mosque['longitude'] ?? 0); ?>"
                                 title="Get Directions" aria-label="Get Directions"
-                                style="padding:.2rem .5rem;font-size:.85rem">&#8635;</button>
+                                type="button">
+                            <i data-lucide="navigation" style="width:14px;height:14px"></i>
+                        </button>
                     </div>
                 </div>
 
                 <div class="pt-grid">
-                    <?php foreach ($prayerDefs as $def):
+                    <?php foreach ($displayPrayerDefs as $def):
                         $key     = $def['key'];
                         $label   = $prayerLabels[$key];
                         $start   = $p[$def['start']] ?? '';
@@ -305,8 +369,10 @@ window.ZUHR_LABEL  = <?php echo json_encode($zuhrLabel); ?>;
                         $isNext  = ($key === $nxt);
                         $isCurr  = ($key === $cur && !$isNext);
                         $cellCls = $isNext ? 'pt-pcell is-next' : ($isCurr ? 'pt-pcell is-current' : 'pt-pcell');
+                        $icon    = $prayerIcons[$key] ?? 'clock-3';
                     ?>
                     <div class="<?php echo $cellCls; ?>" data-prayer="<?php echo $key; ?>">
+                        <div class="pt-pcell-icon"><i data-lucide="<?php echo htmlspecialchars($icon); ?>" style="width:14px;height:14px"></i></div>
                         <div class="pt-pcell-label"><?php echo htmlspecialchars($label); ?></div>
                         <?php if ($start && $jamaat && $start !== $jamaat): ?>
                         <div class="pt-start"><?php echo htmlspecialchars(substr($start, 0, 5)); ?></div>
@@ -330,7 +396,7 @@ window.ZUHR_LABEL  = <?php echo json_encode($zuhrLabel); ?>;
             <p style="font-size:.85rem;margin-top:.5rem">Try adjusting your search or filters.</p>
         </div>
 
-        <p class="text-center text-muted small mt-4" style="font-size:.75rem">
+        <p class="pt-legend-note text-center small mt-4" style="font-size:.75rem">
             Small time = Start &nbsp;|&nbsp; <strong>Bold time</strong> = Congregation &nbsp;|&nbsp;
             <span style="color:#16a34a;font-weight:600">Green</span> = Next prayer &nbsp;|&nbsp;
             <span style="color:#2563eb">Blue</span> = Current prayer &nbsp;|&nbsp;

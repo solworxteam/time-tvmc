@@ -482,11 +482,12 @@
   /* ── Bootstrap ──────────────────────────────────────────────── */
 
   function init() {
-    if (!document.getElementById('pt-home')) return;
-
     if (window.lucide) { lucide.createIcons(); }
 
     initDark();
+
+    if (!document.getElementById('pt-home')) return;
+
     initFavourites();
     initTimeFormat();
     initFilters();
