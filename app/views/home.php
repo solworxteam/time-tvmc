@@ -6,7 +6,6 @@
 
 $isFriday    = date('N') == 5;
 $zuhrLabel   = $isFriday ? 'Friday Prayer' : 'Dhuhr';
-$currentTime = time();
 
 // Group prayer rows by mosque ID
 $prayersByMosque = [];
@@ -45,14 +44,6 @@ foreach ($allMosques as $m) {
     ];
 }
 
-// Prayer definitions
-$prayerDefs = [
-    ['key' => 'fajr',    'start' => 'fajar_start',  'jamaat' => 'fajar_jamaat'],
-    ['key' => 'zuhr',    'start' => 'zuhr_start',   'jamaat' => 'zuhr_jamaat'],
-    ['key' => 'asr',     'start' => 'asr_start',    'jamaat' => 'asr_jamaat'],
-    ['key' => 'maghrib', 'start' => 'maghrib',       'jamaat' => null],
-    ['key' => 'isha',    'start' => 'isha_start',   'jamaat' => 'isha_jamaat'],
-];
 
 $displayPrayerDefs = [
     ['key' => 'fajr', 'start' => 'fajar_start', 'jamaat' => 'fajar_jamaat'],
@@ -200,9 +191,6 @@ window.ZUHR_LABEL  = <?php echo json_encode($zuhrLabel); ?>;
                 $mid  = $mosque['id'];
                 $p    = $prayersByMosque[$mid] ?? null;
                 if (!$p) continue;
-                $nc      = getNextCurrentPrayer($p, $prayerDefs, $currentTime);
-                $nxt     = $nc['next'];
-                $cur     = $nc['current'];
             ?>
             <div class="pt-card"
                  data-mosque-id="<?php echo htmlspecialchars($mid); ?>"
@@ -212,9 +200,7 @@ window.ZUHR_LABEL  = <?php echo json_encode($zuhrLabel); ?>;
                  data-area="<?php echo htmlspecialchars($mosque['area'] ?? ''); ?>"
                  data-lat="<?php echo htmlspecialchars($mosque['latitude'] ?? 0); ?>"
                  data-lon="<?php echo htmlspecialchars($mosque['longitude'] ?? 0); ?>"
-                 data-distance="99999"
-                 data-next="<?php echo htmlspecialchars($nxt); ?>"
-                 data-current="<?php echo htmlspecialchars($cur ?? ''); ?>">
+                 data-distance="99999">
 
                 <div class="d-flex justify-content-between align-items-start gap-3">
                     <div style="flex:1;min-width:0">
@@ -259,9 +245,7 @@ window.ZUHR_LABEL  = <?php echo json_encode($zuhrLabel); ?>;
                         $start   = $p[$def['start']] ?? '';
                         $jamaat  = ($def['jamaat'] && !empty($p[$def['jamaat']])) ? $p[$def['jamaat']] : '';
                         $display = $jamaat ?: $start;
-                        $isNext  = ($key === $nxt);
-                        $isCurr  = ($key === $cur && !$isNext);
-                        $cellCls = $isNext ? 'pt-pcell is-next' : ($isCurr ? 'pt-pcell is-current' : 'pt-pcell');
+                        $cellCls = 'pt-pcell';
                         $icon    = $prayerIcons[$key] ?? 'clock-3';
                     ?>
                     <div class="<?php echo $cellCls; ?>" data-prayer="<?php echo $key; ?>">
@@ -271,11 +255,6 @@ window.ZUHR_LABEL  = <?php echo json_encode($zuhrLabel); ?>;
                         <div class="pt-start"><?php echo htmlspecialchars(substr($start, 0, 5)); ?></div>
                         <?php endif; ?>
                         <div class="pt-jamaat"><?php echo htmlspecialchars(substr($display, 0, 5) ?: chr(8211)); ?></div>
-                        <?php if ($isNext): ?>
-                        <div class="pt-next-tag">Next</div>
-                        <?php elseif ($isCurr): ?>
-                        <div class="pt-current-tag">Current</div>
-                        <?php endif; ?>
                     </div>
                     <?php endforeach; ?>
                 </div>

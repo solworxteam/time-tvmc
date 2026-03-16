@@ -81,6 +81,58 @@
     };
   }
 
+  function parseMinutesSafe(t) {
+    if (!t) return -1;
+    var parts = t.split(':');
+    if (parts.length < 2) return -1;
+    var h = parseInt(parts[0], 10);
+    var m = parseInt(parts[1], 10);
+    if (isNaN(h) || isNaN(m)) return -1;
+    return h * 60 + m;
+  }
+
+  function getNextCurrentPrayerStateForMosque(mosqueId) {
+    if (!window.MOSQUE_DATA) return { next: 'fajr', current: null };
+
+    var mosque = null;
+    for (var i = 0; i < MOSQUE_DATA.length; i++) {
+      if (MOSQUE_DATA[i].id === mosqueId) { mosque = MOSQUE_DATA[i]; break; }
+    }
+    if (!mosque) return { next: 'fajr', current: null };
+
+    var nowMin = new Date().getHours() * 60 + new Date().getMinutes();
+    var nextKey = null;
+    var currentKey = null;
+
+    for (var k = 0; k < PRAYER_ORDER.length; k++) {
+      var key = PRAYER_ORDER[k];
+      var prayer = mosque.prayers[key];
+      if (!prayer) continue;
+
+      var startMin = parseMinutesSafe(prayer.start);
+      var jamaatMin = parseMinutesSafe(prayer.jamaat);
+      var nextMin = jamaatMin >= 0 ? jamaatMin : startMin;
+
+      if (nextMin >= 0 && nextMin > nowMin && nextKey === null) {
+        nextKey = key;
+      }
+
+      if (startMin >= 0 && jamaatMin >= 0) {
+        if (nowMin >= startMin && nowMin <= jamaatMin) {
+          currentKey = key;
+        }
+      } else {
+        var singleMin = jamaatMin >= 0 ? jamaatMin : startMin;
+        if (singleMin >= 0 && nowMin >= (singleMin - 15) && nowMin < singleMin) {
+          currentKey = key;
+        }
+      }
+    }
+
+    if (!nextKey) nextKey = 'fajr';
+    return { next: nextKey, current: currentKey };
+  }
+
   /* ── DOM helpers ────────────────────────────────────────────── */
 
   function $id(id) { return document.getElementById(id); }
@@ -168,20 +220,11 @@
       if (MOSQUE_DATA[i].id === mosqueId) { m = MOSQUE_DATA[i]; break; }
     }
     if (!m) return null;
-    var nowMin = new Date().getHours() * 60 + new Date().getMinutes();
     var labels = getPrayerLabels();
-    for (var k = 0; k < PRAYER_ORDER.length; k++) {
-      var key = PRAYER_ORDER[k];
-      var pr  = m.prayers[key];
-      var t   = pr ? (pr.jamaat || pr.start) : null;
-      if (!t) continue;
-      var parts = t.split(':');
-      var tMin  = parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
-      if (tMin > nowMin) return { name: labels[key], time: t };
-    }
-    var fajr = m.prayers.fajr;
-    var ft = fajr ? (fajr.jamaat || fajr.start) : null;
-    return ft ? { name: labels['fajr'], time: ft } : null;
+    var state = getNextCurrentPrayerStateForMosque(mosqueId);
+    var prayer = m.prayers[state.next];
+    var time = prayer ? (prayer.jamaat || prayer.start) : null;
+    return time ? { name: labels[state.next], time: time } : null;
   }
 
   function updateCountdown() {
@@ -286,27 +329,7 @@
 
   function recomputePrayerHighlights(card) {
     var mosqueId = card.dataset.mosqueId;
-    if (!window.MOSQUE_DATA) return;
-    var m = null;
-    for (var i = 0; i < MOSQUE_DATA.length; i++) {
-      if (MOSQUE_DATA[i].id === mosqueId) { m = MOSQUE_DATA[i]; break; }
-    }
-    if (!m) return;
-
-    var nowMin = new Date().getHours() * 60 + new Date().getMinutes();
-    var nextKey = null, currentKey = null;
-
-    for (var k = 0; k < PRAYER_ORDER.length; k++) {
-      var key = PRAYER_ORDER[k];
-      var pr  = m.prayers[key];
-      var compareTime = pr ? (pr.jamaat || pr.start) : null;
-      if (!compareTime) continue;
-      var parts = compareTime.split(':');
-      var tMin  = parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
-      if (tMin > nowMin) { if (nextKey === null) nextKey = key; }
-      else { currentKey = key; }
-    }
-    if (!nextKey) nextKey = 'fajr';
+    var state = getNextCurrentPrayerStateForMosque(mosqueId);
 
     $all('.pt-pcell', card).forEach(function (cell) {
       var prayer = cell.dataset.prayer;
@@ -316,12 +339,12 @@
       if (nTag) nTag.remove();
       if (cTag) cTag.remove();
 
-      if (prayer === nextKey) {
+      if (prayer === state.next) {
         cell.classList.add('is-next');
         var tag = document.createElement('div');
         tag.className = 'pt-next-tag'; tag.textContent = 'Next';
         cell.appendChild(tag);
-      } else if (prayer === currentKey) {
+      } else if (prayer === state.current) {
         cell.classList.add('is-current');
         var tag2 = document.createElement('div');
         tag2.className = 'pt-current-tag'; tag2.textContent = 'Current';
@@ -503,6 +526,7 @@
     initFilters();
     initDirections();
     initGeolocation();
+    $all('.pt-card').forEach(recomputePrayerHighlights);
     startCountdown();
 
     setInterval(function () {

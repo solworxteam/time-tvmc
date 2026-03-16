@@ -5,6 +5,8 @@
  * Loads environment variables and sets up application constants
  */
 
+date_default_timezone_set('Europe/London');
+
 // Load environment variables from .env file
 $env_file = __DIR__ . '/.env';
 if (!file_exists($env_file)) {

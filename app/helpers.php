@@ -137,38 +137,33 @@ function getNextCurrentPrayer(array $prayerRow, array $prayerDefs, $nowUnix = nu
     $next = null;
     $current = null;
 
-    $count = count($prayerDefs);
-    for ($i = 0; $i < $count; $i++) {
-        $def = $prayerDefs[$i];
+    foreach ($prayerDefs as $def) {
         $startVal = $prayerRow[$def['start']] ?? '';
         $jamaatVal = (!empty($def['jamaat']) && !empty($prayerRow[$def['jamaat']])) ? $prayerRow[$def['jamaat']] : '';
-        $hasValidTimes = !empty($startVal) && !empty($jamaatVal);
-        if (empty($startVal)) continue;
+        $startTs = !empty($startVal) ? strtotime(date('Y-m-d') . ' ' . date('H:i', strtotime($startVal))) : null;
+        $jamaatTs = !empty($jamaatVal) ? strtotime(date('Y-m-d') . ' ' . date('H:i', strtotime($jamaatVal))) : null;
+        $nextTs = !is_null($jamaatTs) ? $jamaatTs : $startTs;
 
-        $startTs = strtotime(date('Y-m-d') . ' ' . date('H:i', strtotime($startVal)));
-        $endTs = null;
-        if ($jamaatVal) {
-            $endTs = strtotime(date('Y-m-d') . ' ' . date('H:i', strtotime($jamaatVal)));
-        } else {
-            if ($i + 1 < $count) {
-                $nextDef = $prayerDefs[$i + 1];
-                $nextStartVal = $prayerRow[$nextDef['start']] ?? '';
-                $endTs = $nextStartVal ? strtotime(date('Y-m-d') . ' ' . date('H:i', strtotime($nextStartVal))) : null;
-            }
-            if (!$endTs) $endTs = $startTs + 7200;
-        }
-
-        // Only highlight as current if both start and congregation times are present
-        if ($hasValidTimes && $now >= $startTs && $now <= $endTs) {
-            $current = $def['key'];
-        }
-        if ($startTs > $now && $next === null) {
+        if (!is_null($nextTs) && $nextTs > $now && $next === null) {
             $next = $def['key'];
         }
+
+        if (!is_null($startTs) && !is_null($jamaatTs)) {
+            if ($now >= $startTs && $now <= $jamaatTs) {
+                $current = $def['key'];
+            }
+        } else {
+            $singleTs = !is_null($jamaatTs) ? $jamaatTs : $startTs;
+            if (!is_null($singleTs) && $now >= ($singleTs - 900) && $now < $singleTs) {
+                $current = $def['key'];
+            }
+        }
     }
+
     if ($next === null) {
         $next = 'fajr';
     }
+
     return ['next' => $next, 'current' => $current];
 }
 
