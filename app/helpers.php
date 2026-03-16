@@ -137,29 +137,37 @@ function getNextCurrentPrayer(array $prayerRow, array $prayerDefs, $nowUnix = nu
     $next = null;
     $current = null;
 
-    foreach ($prayerDefs as $def) {
+    $count = count($prayerDefs);
+    for ($i = 0; $i < $count; $i++) {
+        $def = $prayerDefs[$i];
         $startVal = $prayerRow[$def['start']] ?? '';
         $jamaatVal = (!empty($def['jamaat']) && !empty($prayerRow[$def['jamaat']])) ? $prayerRow[$def['jamaat']] : '';
-        $compareVal = $jamaatVal ?: $startVal;
+        if (empty($startVal)) continue;
 
-        if (empty($compareVal)) {
-            continue;
+        $startTs = strtotime(date('Y-m-d') . ' ' . date('H:i', strtotime($startVal)));
+        $endTs = null;
+        if ($jamaatVal) {
+            $endTs = strtotime(date('Y-m-d') . ' ' . date('H:i', strtotime($jamaatVal)));
+        } else {
+            // Use next prayer's start as end, or far future if last
+            if ($i + 1 < $count) {
+                $nextDef = $prayerDefs[$i + 1];
+                $nextStartVal = $prayerRow[$nextDef['start']] ?? '';
+                $endTs = $nextStartVal ? strtotime(date('Y-m-d') . ' ' . date('H:i', strtotime($nextStartVal))) : null;
+            }
+            if (!$endTs) $endTs = $startTs + 7200; // fallback: 2hr window
         }
 
-        $timestamp = strtotime(date('Y-m-d') . ' ' . date('H:i', strtotime($compareVal)));
-        if ($timestamp > $now) {
-            if ($next === null) {
-                $next = $def['key'];
-            }
-        } else {
+        if ($now >= $startTs && $now <= $endTs) {
             $current = $def['key'];
         }
+        if ($startTs > $now && $next === null) {
+            $next = $def['key'];
+        }
     }
-
     if ($next === null) {
         $next = 'fajr';
     }
-
     return ['next' => $next, 'current' => $current];
 }
 
