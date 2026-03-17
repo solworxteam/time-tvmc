@@ -3,10 +3,9 @@ $basePath = file_exists(__DIR__ . '/../bootstrap.php') ? dirname(__DIR__) : __DI
 require_once $basePath . '/bootstrap.php';
 
 try {
-    $rawId = isset($_GET['id']) ? $_GET['id'] : '';
-    $mosqueId = (int)$rawId;
+    $mosqueId = isset($_GET['id']) ? trim($_GET['id']) : '';
 
-    if ($mosqueId < 1) {
+    if (empty($mosqueId)) {
         header('Location: /mosques.php');
         exit;
     }
